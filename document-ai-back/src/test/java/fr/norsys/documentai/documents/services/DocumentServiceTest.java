@@ -1,6 +1,6 @@
 package fr.norsys.documentai.documents.services;
 
-import fr.norsys.documentai.documents.dtos.DocumentResponse;
+
 import fr.norsys.documentai.documents.dtos.UpdateDocumentRequest;
 import fr.norsys.documentai.documents.entities.Document;
 import fr.norsys.documentai.documents.exceptions.DocumentNotFoundException;
@@ -16,13 +16,16 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -39,44 +42,59 @@ class DocumentServiceTest {
     private DocumentService documentService;
 
     @Test
-    void getDocumentsPaginated_shouldReturnPageOfDocumentsResponse() {
-        // Arrange
+    void shouldReturnAllDocuments_whenFilterIsNone() {
         Pageable pageable = PageRequest.of(0, 10);
-        UUID documentId = UUID.randomUUID();
+        Document doc = createDummyDocument();
+        Page<Document> docsPage = new PageImpl<>(Collections.singletonList(doc));
+        when(documentRepository.findAll(pageable)).thenReturn(docsPage);
 
-        Document document = Document.builder()
-                .id(documentId)
-                .title("Test Document")
-                .author("John")
-                .description("Test Description")
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .fileType("PDF")
-                .fileSize(1024)
-                .filePath("/document.pdf")
-                .build();
+        var result = documentService.getDocuments("none", pageable);
 
-        List<Document> documents = List.of(document);
-        Page<Document> documentPage = new PageImpl<>(documents, pageable, documents.size());
+        assertThat(result.getContent()).hasSize(1);
+        verify(documentRepository).findAll(pageable);
+    }
 
-        when(documentRepository.findAll(pageable)).thenReturn(documentPage);
+    @Test
+    void shouldReturnDocumentsCreatedToday_whenFilterIsCreatedToday() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Document doc = createDummyDocument();
+        Page<Document> docsPage = new PageImpl<>(Collections.singletonList(doc));
+        LocalDate today = LocalDate.now();
+        LocalDateTime start = today.atStartOfDay();
+        LocalDateTime end = today.plusDays(1).atStartOfDay();
+        when(documentRepository.findByCreatedAtToday(eq(start), eq(end), eq(pageable))).thenReturn(docsPage);
 
-        // Act
-        Page<DocumentResponse> result = documentService.getDocumentsPaginated(pageable);
+        var result = documentService.getDocuments("createdtoday", pageable);
 
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.getTotalElements());
+        assertThat(result.getContent()).hasSize(1);
+        verify(documentRepository).findByCreatedAtToday(eq(start), eq(end), eq(pageable));
+    }
 
-        DocumentResponse documentResponse = result.getContent().get(0);
-        assertEquals(document.getId(), documentResponse.id());
-        assertEquals(document.getTitle(), documentResponse.title());
-        assertEquals(document.getAuthor(), documentResponse.author());
-        assertEquals(document.getDescription(), documentResponse.description());
-        assertEquals(document.getFileType(), documentResponse.fileType());
-        assertEquals(document.getFileSize(), documentResponse.fileSize());
+    @Test
+    void shouldReturnDocumentsWithMinSize_whenFilterIsGreaterThan2Mo() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Document doc = createDummyDocument();
+        Page<Document> docsPage = new PageImpl<>(Collections.singletonList(doc));
+        when(documentRepository.findByFileSizeGreaterThan(DocumentService.TWO_MO_IN_KO, pageable)).thenReturn(docsPage);
 
-        verify(documentRepository, times(1)).findAll(pageable);
+        var result = documentService.getDocuments("greaterthan2mo", pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+        verify(documentRepository).findByFileSizeGreaterThan(DocumentService.TWO_MO_IN_KO, pageable);
+    }
+
+    @Test
+    void shouldReturnDocumentsUpdatedBefore_whenFilterIsUpdatedBeforeToday() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Document doc = createDummyDocument();
+        Page<Document> docsPage = new PageImpl<>(Collections.singletonList(doc));
+        LocalDateTime before = LocalDate.now().atStartOfDay();
+        when(documentRepository.findByUpdatedAtBefore(eq(before), eq(pageable))).thenReturn(docsPage);
+
+        var result = documentService.getDocuments("updatedbeforetoday", pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+        verify(documentRepository).findByUpdatedAtBefore(eq(before), eq(pageable));
     }
 
     @Test
@@ -113,8 +131,7 @@ class DocumentServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenDocumentNotFound() {
-        // Given
+    void shouldThrowExceptionWhenUpdatingNonExistingDocument() {
         UUID id = UUID.randomUUID();
         UpdateDocumentRequest request = new UpdateDocumentRequest("Any Title", "Any Author", "Any description");
 
@@ -131,5 +148,21 @@ class DocumentServiceTest {
         assertEquals("Document not found", exception.getMessage());
         verify(documentRepository).findById(id);
         verify(documentRepository, never()).save(any());
+
+    
+    }
+
+    private Document createDummyDocument() {
+        Document doc = new Document();
+        doc.setId(UUID.randomUUID());
+        doc.setTitle("Test Document");
+        doc.setAuthor("Author");
+        doc.setDescription("Description");
+        doc.setCreatedAt(LocalDateTime.now());
+        doc.setUpdatedAt(LocalDateTime.now());
+        doc.setFileType("pdf");
+        doc.setFileSize(3000);
+        doc.setFilePath("/documents/test.pdf");
+        return doc;
     }
 }

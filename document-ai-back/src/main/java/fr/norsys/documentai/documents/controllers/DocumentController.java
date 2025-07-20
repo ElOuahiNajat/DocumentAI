@@ -17,17 +17,22 @@ import java.util.UUID;
 @RequestMapping("/api/documents")
 @RequiredArgsConstructor
 public class DocumentController {
+
     private final DocumentService documentService;
 
-    @GetMapping
-    public Page<DocumentResponse> listDocuments(
-            @RequestParam int page,
-            @RequestParam int size
+   @GetMapping
+    public Page<DocumentResponse> getDocuments(
+        @RequestParam int page,
+        @RequestParam int size,
+        @RequestParam(defaultValue = "none") String filter
+        
     ) {
         Pageable pageable = PageRequest.of(page, size);
 
-        return documentService.getDocumentsPaginated(pageable);
+
+        return documentService.getDocuments(filter, pageable);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateDocument(
@@ -36,6 +41,8 @@ public class DocumentController {
     {
         documentService.updateDocument(id, request);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().build(); 
+       
     }
+
 }

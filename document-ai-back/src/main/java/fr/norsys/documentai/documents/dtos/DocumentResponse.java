@@ -13,7 +13,8 @@ public record DocumentResponse(
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         String fileType,
-        Integer fileSize
+        Integer fileSize,
+        String formattedFileSize
 ) {
     public DocumentResponse(Document doc) {
         this(
@@ -24,7 +25,18 @@ public record DocumentResponse(
                 doc.getCreatedAt(),
                 doc.getUpdatedAt(),
                 doc.getFileType(),
-                doc.getFileSize()
+                doc.getFileSize(),
+                formatFileSize(doc.getFileSize())
         );
+    }
+
+    private static String formatFileSize(Integer sizeKo) {
+        if (sizeKo == null) return "0 Ko";
+        double sizeMo = sizeKo / 1024.0;
+        if (sizeMo >= 1) {
+            return String.format("%.2f Mo", sizeMo);
+        } else {
+            return sizeKo + " Ko";
+        }
     }
 }

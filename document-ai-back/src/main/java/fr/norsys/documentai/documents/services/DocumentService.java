@@ -3,19 +3,23 @@ package fr.norsys.documentai.documents.services;
 import fr.norsys.documentai.documents.dtos.DocumentResponse;
 import fr.norsys.documentai.documents.dtos.UpdateDocumentRequest;
 import fr.norsys.documentai.documents.entities.Document;
+import fr.norsys.documentai.documents.enums.ComparatorOperator;
 import fr.norsys.documentai.documents.exceptions.DocumentNotFoundException;
+import fr.norsys.documentai.documents.exceptions.InvalidComparatorOperatorException;
 import fr.norsys.documentai.documents.repositories.DocumentRepository;
 import fr.norsys.documentai.documents.specs.DocumentDateSpecs;
 import fr.norsys.documentai.documents.specs.DocumentFileSizeSpecs;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import java.util.Locale;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 @Service
@@ -28,43 +32,51 @@ public class DocumentService {
 
     public Page<DocumentResponse> getDocuments(
             Pageable pageable,
-            String fileSizeOperator,
-            Long fileSize,
+            String fileSizeOperatorStr,
+            Integer fileSize,
             LocalDate createdAtStart,
             LocalDate createdAtEnd,
             LocalDate updatedAtStart,
             LocalDate updatedAtEnd
     ) {
-        Specification<Document> spec = Specification.where(null);
+        List<Specification<Document>> documentSpecs = new ArrayList<>();
 
-        
-        if (fileSize != null && fileSizeOperator != null) {
-            spec = spec.and(switch (fileSizeOperator) {
-                case ">" -> DocumentFileSizeSpecs.fileSizeGreaterThan(fileSize);
-                case ">=" -> DocumentFileSizeSpecs.fileSizeGreaterThanOrEqual(fileSize);
-                case "<" -> DocumentFileSizeSpecs.fileSizeLessThan(fileSize);
-                case "<=" -> DocumentFileSizeSpecs.fileSizeLessThanOrEqual(fileSize);
-                case "=" -> DocumentFileSizeSpecs.fileSizeEqual(fileSize);
-                default -> throw new IllegalArgumentException("Invalid file size operator: " + fileSizeOperator);
-            });
+        if (fileSize != null && fileSizeOperatorStr != null && !fileSizeOperatorStr.isEmpty()) {
+            ComparatorOperator operator;
+            try {
+                operator = ComparatorOperator.valueOf(fileSizeOperatorStr);
+           } catch (IllegalArgumentException ex) {
+                throw new InvalidComparatorOperatorException(
+                    messageSource.getMessage("invalid.filesize.operator.error", null, Locale.getDefault())
+                );
+           }
+
+            Specification<Document> fileSizeSpec = switch (operator) {
+                case GREATER_THAN -> DocumentFileSizeSpecs.fileSizeGreaterThan(fileSize);
+                case GREATER_THAN_OR_EQUAL -> DocumentFileSizeSpecs.fileSizeGreaterThanOrEqual(fileSize);
+                case LESS_THAN -> DocumentFileSizeSpecs.fileSizeLessThan(fileSize);
+                case LESS_THAN_OR_EQUAL -> DocumentFileSizeSpecs.fileSizeLessThanOrEqual(fileSize);
+                case EQUAL -> DocumentFileSizeSpecs.fileSizeEqual(fileSize);
+            };
+            documentSpecs.add(fileSizeSpec);
         }
 
-        
         if (createdAtStart != null && createdAtEnd != null) {
-            spec = spec.and(DocumentDateSpecs.createdAtBetween(createdAtStart, createdAtEnd));
+            documentSpecs.add(DocumentDateSpecs.createdAtBetween(createdAtStart, createdAtEnd));
         }
 
-        
         if (updatedAtStart != null && updatedAtEnd != null) {
-            spec = spec.and(DocumentDateSpecs.updatedAtBetween(updatedAtStart, updatedAtEnd));
+            documentSpecs.add(DocumentDateSpecs.updatedAtBetween(updatedAtStart, updatedAtEnd));
         }
 
-        return documentRepository.findAll(spec, pageable)
+        Specification<Document> finalSpec = documentSpecs.stream()
+                .reduce(Specification::and)
+                .orElse(null);
+
+        return documentRepository.findAll(finalSpec, pageable)
                 .map(DocumentResponse::new);
     }
 
-
-    
     public void updateDocument(UUID id, UpdateDocumentRequest request) throws DocumentNotFoundException {
         Document doc = documentRepository.findById(id)
                 .orElseThrow(() -> new DocumentNotFoundException(
@@ -76,7 +88,4 @@ public class DocumentService {
         doc.setDescription(request.description());
         documentRepository.save(doc);
     }
-   
-    
-
 }

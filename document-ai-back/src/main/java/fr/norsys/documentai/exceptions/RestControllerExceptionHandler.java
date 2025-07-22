@@ -9,8 +9,8 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class RestControllerExceptionHandler {
-    @ExceptionHandler(ResourceAlreadyExistException.class)
-    public ResponseEntity<Map<String, String>> resourceAlreadyExists(ResourceAlreadyExistException ex) {
+    @ExceptionHandler(ResourceBadRequestException.class)
+    public ResponseEntity<Map<String, String>> resourceAlreadyExists(ResourceBadRequestException ex) {
         return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
     }
 

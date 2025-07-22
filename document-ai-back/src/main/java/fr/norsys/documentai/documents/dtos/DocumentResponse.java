@@ -14,6 +14,7 @@ public record DocumentResponse(
         LocalDateTime updatedAt,
         String fileType,
         Integer fileSize
+        
 ) {
     public DocumentResponse(Document doc) {
         this(
@@ -27,4 +28,5 @@ public record DocumentResponse(
                 doc.getFileSize()
         );
     }
+   
 }

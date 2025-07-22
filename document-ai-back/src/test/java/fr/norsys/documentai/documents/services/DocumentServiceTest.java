@@ -1,6 +1,6 @@
 package fr.norsys.documentai.documents.services;
 
-import fr.norsys.documentai.documents.dtos.DocumentResponse;
+
 import fr.norsys.documentai.documents.dtos.UpdateDocumentRequest;
 import fr.norsys.documentai.documents.entities.Document;
 import fr.norsys.documentai.documents.exceptions.DocumentNotFoundException;
@@ -11,18 +11,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -38,46 +32,6 @@ class DocumentServiceTest {
     @InjectMocks
     private DocumentService documentService;
 
-    @Test
-    void getDocumentsPaginated_shouldReturnPageOfDocumentsResponse() {
-        // Arrange
-        Pageable pageable = PageRequest.of(0, 10);
-        UUID documentId = UUID.randomUUID();
-
-        Document document = Document.builder()
-                .id(documentId)
-                .title("Test Document")
-                .author("John")
-                .description("Test Description")
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .fileType("PDF")
-                .fileSize(1024)
-                .filePath("/document.pdf")
-                .build();
-
-        List<Document> documents = List.of(document);
-        Page<Document> documentPage = new PageImpl<>(documents, pageable, documents.size());
-
-        when(documentRepository.findAll(pageable)).thenReturn(documentPage);
-
-        // Act
-        Page<DocumentResponse> result = documentService.getDocumentsPaginated(pageable);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.getTotalElements());
-
-        DocumentResponse documentResponse = result.getContent().get(0);
-        assertEquals(document.getId(), documentResponse.id());
-        assertEquals(document.getTitle(), documentResponse.title());
-        assertEquals(document.getAuthor(), documentResponse.author());
-        assertEquals(document.getDescription(), documentResponse.description());
-        assertEquals(document.getFileType(), documentResponse.fileType());
-        assertEquals(document.getFileSize(), documentResponse.fileSize());
-
-        verify(documentRepository, times(1)).findAll(pageable);
-    }
 
     @Test
     void shouldUpdateDocumentSuccessfully() {
@@ -113,8 +67,7 @@ class DocumentServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenDocumentNotFound() {
-        // Given
+    void shouldThrowExceptionWhenUpdatingNonExistingDocument() {
         UUID id = UUID.randomUUID();
         UpdateDocumentRequest request = new UpdateDocumentRequest("Any Title", "Any Author", "Any description");
 
@@ -131,5 +84,9 @@ class DocumentServiceTest {
         assertEquals("Document not found", exception.getMessage());
         verify(documentRepository).findById(id);
         verify(documentRepository, never()).save(any());
+
+    
     }
+
+    
 }

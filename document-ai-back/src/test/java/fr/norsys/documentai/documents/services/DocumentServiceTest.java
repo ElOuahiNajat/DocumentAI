@@ -1,6 +1,7 @@
 package fr.norsys.documentai.documents.services;
 
 
+import fr.norsys.documentai.documents.dtos.CreateDocumentRequest;
 import fr.norsys.documentai.documents.dtos.UpdateDocumentRequest;
 import fr.norsys.documentai.documents.entities.Document;
 import fr.norsys.documentai.documents.exceptions.DocumentNotFoundException;
@@ -11,6 +12,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
+import org.springframework.mock.web.MockMultipartFile;
+
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Optional;
@@ -22,13 +26,12 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DocumentServiceTest {
-
     @Mock
     private DocumentRepository documentRepository;
-
     @Mock
-    private MessageSource messageSource;  // Added this mock because your service depends on it
-
+    private MessageSource messageSource;
+    @Mock
+    private FileStorageService fileStorageService;
     @InjectMocks
     private DocumentService documentService;
 
@@ -84,9 +87,47 @@ class DocumentServiceTest {
         assertEquals("Document not found", exception.getMessage());
         verify(documentRepository).findById(id);
         verify(documentRepository, never()).save(any());
-
-    
     }
 
-    
+    @Test
+    void testSaveDocument_shouldStoreAndReturnDocument() throws IOException {
+        // Arrange
+        String fileNameNoExtension = "test";
+        String fileExtension = "docx";
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                fileNameNoExtension  + "." + fileExtension,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "Test Content".getBytes()
+        );
+        CreateDocumentRequest request = new CreateDocumentRequest(
+                "title",
+                "author",
+                "desc",
+                file
+        );
+        int fileSize = Math.toIntExact(file.getSize() / 1024);
+        when(fileStorageService.getFileSizeByKo(file)).thenReturn(fileSize);
+        String uploadDist = "uploads/" + file.getOriginalFilename();
+        when(fileStorageService.store(file)).thenReturn(uploadDist);
+
+        Document savedDocument = Document.builder()
+                .title(request.title())
+                .author(request.author())
+                .description(request.description())
+                .fileType(file.getContentType())
+                .fileSize(fileSize)
+                .filePath(uploadDist)
+                .build();
+
+        when(documentRepository.save(savedDocument)).thenReturn(savedDocument);
+
+        // Act
+        documentService.saveDocument(request);
+
+        // Assert
+        verify(fileStorageService, times(1)).getFileSizeByKo(file);
+        verify(fileStorageService, times(1)).store(file);
+        verify(documentRepository, times(1)).save(savedDocument);
+    }
 }

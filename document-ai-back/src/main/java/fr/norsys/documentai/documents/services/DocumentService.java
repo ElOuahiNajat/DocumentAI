@@ -1,5 +1,6 @@
 package fr.norsys.documentai.documents.services;
 
+import fr.norsys.documentai.documents.dtos.CreateDocumentRequest;
 import fr.norsys.documentai.documents.dtos.DocumentResponse;
 import fr.norsys.documentai.documents.dtos.UpdateDocumentRequest;
 import fr.norsys.documentai.documents.entities.Document;
@@ -8,14 +9,17 @@ import fr.norsys.documentai.documents.exceptions.DocumentNotFoundException;
 import fr.norsys.documentai.documents.repositories.DocumentRepository;
 import fr.norsys.documentai.documents.entitySpecs.DocumentDateSpecs;
 import fr.norsys.documentai.documents.entitySpecs.DocumentFileSizeSpecs;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +28,11 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
+@Validated
 public class DocumentService {
     private final DocumentRepository documentRepository;
     private final MessageSource messageSource;
+    private final FileStorageService fileStorageService;
 
     public Page<DocumentResponse> getDocuments(
             Pageable pageable,
@@ -75,5 +80,24 @@ public class DocumentService {
         doc.setAuthor(request.author());
         doc.setDescription(request.description());
         documentRepository.save(doc);
+    }
+
+    public void saveDocument(@Valid CreateDocumentRequest createDocumentRequest) throws IOException {
+        MultipartFile file = createDocumentRequest.file();
+        String fileType = file.getContentType();
+        int fileSize = fileStorageService.getFileSizeByKo(file);
+
+        String filePath = fileStorageService.store(file);
+
+        Document document = Document.builder()
+                .title(createDocumentRequest.title())
+                .author(createDocumentRequest.author())
+                .description(createDocumentRequest.description())
+                .fileType(fileType)
+                .fileSize(fileSize)
+                .filePath(filePath)
+                .build();
+
+        documentRepository.save(document);
     }
 }

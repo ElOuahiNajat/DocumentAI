@@ -1,4 +1,46 @@
-<mat-toolbar class="space-x-5">
-  <span>Documents</span>
-  <button matButton routerLink="/users" routerLinkActive="shadow-md">Users</button>
+<mat-toolbar class="bg-white border border-gray-200 rounded-lg p-4 mb-6 shadow-sm flex justify-between items-center">
+  <!-- Logo and Navigation Section -->
+  <div class="flex items-center space-x-8">
+    <!-- Logo -->
+    <div class="flex items-center space-x-2">
+      <img src="assets/norsys_afrique.jpg" alt="Norsys Afrique Logo" class="h-20" />
+    </div>
+    <!-- Navigation Links -->
+    <nav class="flex space-x-6">
+      <a
+        mat-button
+        routerLink="/"
+        routerLinkActive="active-link"
+        [routerLinkActiveOptions]="{exact: true}"
+        class="text-gray-600 hover:text-gray-900 pb-2 transition-colors text-sm relative">
+        {{ getTranslation('home') }}
+      </a>
+      <a
+        mat-button
+        routerLink="/documents"
+        routerLinkActive="active-link"
+        class="text-gray-600 hover:text-gray-900 pb-2 transition-colors text-sm relative">
+        {{ getTranslation('documents') }}
+      </a>
+    </nav>
+  </div>
+
+  <!-- User Actions Section -->
+  <div class="flex items-center space-x-2">
+    <!-- Profile Dropdown -->
+    <div class="relative">
+      <button mat-icon-button (click)="toggleProfileMenu()" class="p-2 hover:bg-gray-100 rounded-md transition-colors flex items-center space-x-1" [attr.aria-label]="getTranslation('profile')" aria-haspopup="true" [attr.aria-expanded]="isProfileMenuOpen">
+        <mat-icon class="text-gray-600 text-base">person</mat-icon>
+        <mat-icon class="text-gray-600 text-base" [ngClass]="{'rotate-180': isProfileMenuOpen}">arrow_drop_down</mat-icon>
+      </button>
+      <div *ngIf="isProfileMenuOpen" class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20 overflow-hidden">
+        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" (click)="toggleProfileMenu()">
+          {{ getTranslation('profile') }}
+        </a>
+        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" (click)="toggleProfileMenu()">
+          {{ getTranslation('logout') }}
+        </a>
+      </div>
+    </div>
+  </div>
 </mat-toolbar>

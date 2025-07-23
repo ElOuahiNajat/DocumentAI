@@ -1,0 +1,34 @@
+/* Active link styles */
+.active-link {
+  color: #111827 !important; /* text-gray-900 equivalent */
+  font-weight: 500 !important;
+  position: relative;
+}
+
+.active-link::after {
+  content: '';
+  position: absolute;
+  bottom: -8px; /* Adjust this value based on your padding */
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #000000;
+  border-radius: 1px;
+}
+
+/* Alternative approach if the above doesn't work */
+nav a.active-link {
+  color: #111827 !important;
+  font-weight: 500 !important;
+}
+
+nav a.active-link::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #000000;
+  border-radius: 1px;
+}

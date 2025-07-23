@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: optional:env[.env]
   application:
     name: documentai
   datasource:
@@ -12,5 +14,9 @@ spring:
     enabled: ${FLYWAY_ENABLED}
   messages:
     basename: lang/messages
+
 server:
   port: ${BACK_PORT}
+
+front:
+  url: ${FRONT_URL}

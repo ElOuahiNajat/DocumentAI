@@ -1,0 +1,19 @@
+<mat-card class="shadow-md overflow-hidden flex flex-col h-full border border-gray-200 hover:border-gray-300 transition-all duration-200 bg-white">
+  <mat-card-content class="p-4 flex-grow">
+    <h3 class="text-xl font-bold text-gray-900 mb-1">{{ document.title }}</h3>
+    <p class="text-sm text-gray-600 mb-4">{{ document.author }}</p>
+    <div class="flex text-gray-400 space-x-1 mb-4">
+      <span class="material-icons text-lg">star_border</span>
+      <span class="material-icons text-lg">star_border</span>
+      <span class="material-icons text-lg">star_border</span>
+      <span class="material-icons text-lg">star_border</span>
+      <span class="material-icons text-lg">star_border</span>
+    </div>
+  </mat-card-content>
+  <mat-card-actions class="p-4 border-t border-gray-200 flex justify-end space-x-2">
+    <app-document-button icon="edit" ariaLabel="Edit document" (buttonClick)="onEdit()"></app-document-button>
+    <app-document-button icon="delete" ariaLabel="Delete document" iconClass="text-red-500" (buttonClick)="onDelete()"></app-document-button>
+    <app-document-button icon="download" ariaLabel="Download document" iconClass="text-green-500" (buttonClick)="onDownload()"></app-document-button>
+    <app-document-button icon="info" ariaLabel="View details" (buttonClick)="onDetail()"></app-document-button>
+  </mat-card-actions>
+</mat-card>

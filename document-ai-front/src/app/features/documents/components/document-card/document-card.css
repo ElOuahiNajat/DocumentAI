@@ -1,0 +1,3 @@
+mat-card {
+  border: 1px solid #e5e7eb !important; /* Equivalent to border-gray-200, using !important for higher specificity */
+}

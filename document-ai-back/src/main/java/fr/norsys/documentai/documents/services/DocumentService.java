@@ -30,6 +30,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Validated
 public class DocumentService {
+
     private final DocumentRepository documentRepository;
     private final MessageSource messageSource;
     private final FileStorageService fileStorageService;
@@ -100,4 +101,9 @@ public class DocumentService {
 
         documentRepository.save(document);
     }
+
+    public void deleteDocument(UUID id) {
+        documentRepository.deleteById(id);
+    }
+
 }

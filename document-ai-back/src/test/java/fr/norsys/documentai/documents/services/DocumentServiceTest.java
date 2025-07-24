@@ -1,6 +1,5 @@
 package fr.norsys.documentai.documents.services;
 
-
 import fr.norsys.documentai.documents.dtos.CreateDocumentRequest;
 import fr.norsys.documentai.documents.dtos.UpdateDocumentRequest;
 import fr.norsys.documentai.documents.entities.Document;
@@ -34,7 +33,6 @@ class DocumentServiceTest {
     private FileStorageService fileStorageService;
     @InjectMocks
     private DocumentService documentService;
-
 
     @Test
     void shouldUpdateDocumentSuccessfully() {
@@ -130,4 +128,18 @@ class DocumentServiceTest {
         verify(fileStorageService, times(1)).store(file);
         verify(documentRepository, times(1)).save(savedDocument);
     }
+
+    @Test
+      void deleteDocument_Successfully() {
+        // Arrange
+        UUID id = UUID.randomUUID();
+        doNothing().when(documentRepository).deleteById(id);
+
+        // Act
+        documentService.deleteDocument(id);
+
+        // Assert
+        verify(documentRepository, times(1)).deleteById(id);
+     }
+
 }

@@ -4,22 +4,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.norsys.documentai.documents.dtos.CreateDocumentRequest;
 import fr.norsys.documentai.documents.dtos.UpdateDocumentRequest;
 import fr.norsys.documentai.documents.services.DocumentService;
-import jakarta.servlet.http.Part;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.assertj.MockMvcTester;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockPart;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.assertj.MvcTestResultAssert;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -32,13 +30,13 @@ class DocumentControllerTest {
   
     @Autowired
     private MockMvcTester mockMvc;
+
     @MockitoBean
     private DocumentService documentService;
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    
+ 
     @Test
     void updateDocument_shouldReturnNoContent_whenValidRequest() throws Exception {
         // Arrange
@@ -102,4 +100,20 @@ class DocumentControllerTest {
         resultAssert.hasStatus(HttpStatus.CREATED);
         verify(documentService, times(1)).saveDocument(request);
     }
+
+     @Test
+      void deleteDocument_shouldReturnNoContent_whenValidRequest() {
+        // Arrange
+        UUID documentId = UUID.randomUUID();
+        doNothing().when(documentService).deleteDocument(documentId);
+
+        // Act
+        MvcTestResultAssert resultAssert = mockMvc.delete()
+                .uri(ENDPOINT + "/" + documentId)
+                .assertThat();
+
+        // Assert
+        resultAssert.hasStatus(HttpStatus.NO_CONTENT);
+        verify(documentService, times(1)).deleteDocument(documentId);
+        }
 }

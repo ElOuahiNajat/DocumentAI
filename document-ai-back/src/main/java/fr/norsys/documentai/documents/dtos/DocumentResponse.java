@@ -26,7 +26,9 @@ public record DocumentResponse(
                 doc.getUpdatedAt(),
                 doc.getFileType(),
                 doc.getFileSize()
+
         );
     }
    
 }
+

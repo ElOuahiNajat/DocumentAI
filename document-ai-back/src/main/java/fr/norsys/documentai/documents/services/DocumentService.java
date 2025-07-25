@@ -4,11 +4,10 @@ import fr.norsys.documentai.documents.dtos.CreateDocumentRequest;
 import fr.norsys.documentai.documents.dtos.DocumentResponse;
 import fr.norsys.documentai.documents.dtos.UpdateDocumentRequest;
 import fr.norsys.documentai.documents.entities.Document;
+import fr.norsys.documentai.documents.entitySpecs.*;
 import fr.norsys.documentai.documents.enums.ComparatorOperator;
 import fr.norsys.documentai.documents.exceptions.DocumentNotFoundException;
 import fr.norsys.documentai.documents.repositories.DocumentRepository;
-import fr.norsys.documentai.documents.entitySpecs.DocumentDateSpecs;
-import fr.norsys.documentai.documents.entitySpecs.DocumentFileSizeSpecs;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -30,13 +29,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Validated
 public class DocumentService {
-
     private final DocumentRepository documentRepository;
     private final MessageSource messageSource;
     private final FileStorageService fileStorageService;
 
+
     public Page<DocumentResponse> getDocuments(
             Pageable pageable,
+            String searchTerm,
             ComparatorOperator fileSizeComparator,
             Integer fileSize,
             LocalDate createdAtStart,
@@ -46,10 +46,21 @@ public class DocumentService {
     ) {
         List<Specification<Document>> documentSpecs = new ArrayList<>();
 
+        if (searchTerm != null && !searchTerm.isBlank()) {
+            documentSpecs.add(Specification.anyOf(
+                    DocumentTitleSpecification.containsTitle(searchTerm),
+                    DocumentAuthorSpecification.containsAuthor(searchTerm),
+                    DocumentDescriptionSpecification.containsDescription(searchTerm),
+                    DocumentFileTypeSpecification.hasFileType(searchTerm)
+
+            ));
+        }
+
         if (fileSize != null && fileSizeComparator != null) {
             Specification<Document> fileSizeSpec = switch (fileSizeComparator) {
                 case ComparatorOperator.GREATER_THAN -> DocumentFileSizeSpecs.fileSizeGreaterThan(fileSize);
-                case ComparatorOperator.GREATER_THAN_OR_EQUAL -> DocumentFileSizeSpecs.fileSizeGreaterThanOrEqual(fileSize);
+                case ComparatorOperator.GREATER_THAN_OR_EQUAL ->
+                        DocumentFileSizeSpecs.fileSizeGreaterThanOrEqual(fileSize);
                 case ComparatorOperator.LESS_THAN -> DocumentFileSizeSpecs.fileSizeLessThan(fileSize);
                 case ComparatorOperator.LESS_THAN_OR_EQUAL -> DocumentFileSizeSpecs.fileSizeLessThanOrEqual(fileSize);
                 case ComparatorOperator.EQUAL -> DocumentFileSizeSpecs.fileSizeEqual(fileSize);
@@ -69,6 +80,8 @@ public class DocumentService {
 
         return documentRepository.findAll(finalSpec, pageable)
                 .map(DocumentResponse::new);
+
+
     }
 
     public void updateDocument(UUID id, UpdateDocumentRequest request) throws DocumentNotFoundException {
@@ -76,13 +89,13 @@ public class DocumentService {
                 .orElseThrow(() -> new DocumentNotFoundException(
                         messageSource.getMessage("document.not.found.error", null, Locale.getDefault())
                 ));
-
         doc.setTitle(request.title());
         doc.setAuthor(request.author());
         doc.setDescription(request.description());
         documentRepository.save(doc);
-    }
 
+
+    }
     public void saveDocument(@Valid CreateDocumentRequest createDocumentRequest) throws IOException {
         MultipartFile file = createDocumentRequest.file();
         String fileType = file.getContentType();
@@ -104,6 +117,6 @@ public class DocumentService {
 
     public void deleteDocument(UUID id) {
         documentRepository.deleteById(id);
-    }
+}}
 
-}
+

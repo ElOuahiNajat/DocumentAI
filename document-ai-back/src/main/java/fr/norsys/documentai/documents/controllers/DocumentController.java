@@ -36,7 +36,8 @@ public class DocumentController implements MethodArgumentNotValidExceptionHandle
     private final DocumentService documentService;
     
     @GetMapping
-    public Page<DocumentResponse> getDocuments(
+    public Page<DocumentResponse> listDocuments(
+            @RequestParam(required = false)String searchTerm,
             @RequestParam int page,
             @RequestParam int size,
             @RequestParam(required = false) ComparatorOperator fileSizeComparator,
@@ -48,8 +49,10 @@ public class DocumentController implements MethodArgumentNotValidExceptionHandle
     ) {
         Pageable pageable = PageRequest.of(page, size);
 
+
         return documentService.getDocuments(
                 pageable,
+                searchTerm,
                 fileSizeComparator,
                 fileSize,
                 createdAtStart,
@@ -62,10 +65,9 @@ public class DocumentController implements MethodArgumentNotValidExceptionHandle
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateDocument(
             @PathVariable UUID id,
-            @Valid @RequestBody UpdateDocumentRequest request)
-    {
+            @Valid @RequestBody UpdateDocumentRequest request
+    ) {
         documentService.updateDocument(id, request);
-
         return ResponseEntity.noContent().build();
     }
 

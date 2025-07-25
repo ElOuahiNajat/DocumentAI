@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 class DocumentControllerTest {
 
     private final String ENDPOINT = "/api/documents";
-  
+
     @Autowired
     private MockMvcTester mockMvc;
 
@@ -36,7 +36,7 @@ class DocumentControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
- 
+
     @Test
     void updateDocument_shouldReturnNoContent_whenValidRequest() throws Exception {
         // Arrange
@@ -101,8 +101,8 @@ class DocumentControllerTest {
         verify(documentService, times(1)).saveDocument(request);
     }
 
-     @Test
-      void deleteDocument_shouldReturnNoContent_whenValidRequest() {
+    @Test
+    void deleteDocument_shouldReturnNoContent_whenValidRequest() {
         // Arrange
         UUID documentId = UUID.randomUUID();
         doNothing().when(documentService).deleteDocument(documentId);
@@ -115,5 +115,5 @@ class DocumentControllerTest {
         // Assert
         resultAssert.hasStatus(HttpStatus.NO_CONTENT);
         verify(documentService, times(1)).deleteDocument(documentId);
-        }
+    }
 }

@@ -130,7 +130,7 @@ class DocumentServiceTest {
     }
 
     @Test
-      void deleteDocument_Successfully() {
+    void deleteDocument_Successfully() {
         // Arrange
         UUID id = UUID.randomUUID();
         doNothing().when(documentRepository).deleteById(id);
@@ -140,6 +140,6 @@ class DocumentServiceTest {
 
         // Assert
         verify(documentRepository, times(1)).deleteById(id);
-     }
+    }
 
 }

@@ -5,35 +5,33 @@ import fr.norsys.documentai.documents.dtos.DocumentResponse;
 import fr.norsys.documentai.documents.dtos.UpdateDocumentRequest;
 import fr.norsys.documentai.documents.enums.ComparatorOperator;
 import fr.norsys.documentai.documents.services.DocumentService;
+import fr.norsys.documentai.documents.entities.Document;
 import fr.norsys.documentai.exceptions.MethodArgumentNotValidExceptionHandler;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/api/documents")
 @RequiredArgsConstructor
 public class DocumentController implements MethodArgumentNotValidExceptionHandler {
     private final DocumentService documentService;
+    private final DocumentDownloadService documentDownloadService;
     
     @GetMapping
     public Page<DocumentResponse> listDocuments(
@@ -90,6 +88,18 @@ public class DocumentController implements MethodArgumentNotValidExceptionHandle
     public ResponseEntity<Void> deleteDocument(@PathVariable UUID id) {
         documentService.deleteDocument(id);
         return ResponseEntity.noContent().build();
-}
+    }
 
+    @GetMapping("/{id}/download")
+    public ResponseEntity<Resource> downloadDocument(@PathVariable UUID id) {
+        Document document = documentService.getDocumentById(id);
+        Resource resource = documentService.downloadDocument(id);
+
+        String fileName = Paths.get(document.getFilePath()).getFileName().toString();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(document.getFileType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .body(resource);
+    }
 }

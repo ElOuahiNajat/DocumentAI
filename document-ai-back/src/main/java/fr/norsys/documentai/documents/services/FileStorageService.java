@@ -3,10 +3,13 @@ package fr.norsys.documentai.documents.services;
 import fr.norsys.documentai.documents.exceptions.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
+import java.net.MalformedURLException;
 import java.util.UUID;
 
 @Service
@@ -37,7 +40,7 @@ public class FileStorageService {
         return uploadDir.resolve(fileName).toString();
     }
 
-    public String getFileExtension(String fileName) {
+    private String getFileExtension(String fileName) {
         int lastDotIndex = fileName.lastIndexOf('.');
         if (lastDotIndex == -1 || lastDotIndex == fileName.length() - 1) {
             return "";
@@ -45,7 +48,25 @@ public class FileStorageService {
         return fileName.substring(lastDotIndex);
     }
 
-    public int getFileSizeByKo(MultipartFile file) {
+    private int getFileSizeByKo(MultipartFile file) {
         return (int) (file.getSize() / 1024);
+    }
+
+    private Path load(String filename) {
+        return uploadDir.resolve(filename);
+    }
+
+    public Resource loadAsResource(String filename) {
+        try {
+            Path file = load(filename);
+            Resource resource = new UrlResource(file.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            } else {
+                throw new StorageFileNotFoundException("document.not.read.error : " + filename);
+            }
+        } catch (MalformedURLException e) {
+            throw new StorageFileNotFoundException("document.not.found.error : " + filename, e);
+        }
     }
 }

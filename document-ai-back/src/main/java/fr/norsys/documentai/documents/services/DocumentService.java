@@ -3,6 +3,7 @@ package fr.norsys.documentai.documents.services;
 import fr.norsys.documentai.documents.dtos.CreateDocumentRequest;
 import fr.norsys.documentai.documents.dtos.DocumentResponse;
 import fr.norsys.documentai.documents.dtos.UpdateDocumentRequest;
+import fr.norsys.documentai.documents.services.FileStorageService;
 import fr.norsys.documentai.documents.entities.Document;
 import fr.norsys.documentai.documents.entitySpecs.*;
 import fr.norsys.documentai.documents.enums.ComparatorOperator;
@@ -17,8 +18,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
 
 import java.io.IOException;
+import java.nio.file.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -117,6 +120,17 @@ public class DocumentService {
 
     public void deleteDocument(UUID id) {
         documentRepository.deleteById(id);
-}}
+    }
+
+    public Resource downloadDocument(UUID id) {
+        Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new DocumentNotFoundException(
+                        messageSource.getMessage("document.not.found.error", null, Locale.getDefault())
+                ));
+        String filePath = document.getFilePath();
+        String fileName = Paths.get(filePath).getFileName().toString();
+        return fileStorageService.loadAsResource(fileName);
+    }
+}
 
 

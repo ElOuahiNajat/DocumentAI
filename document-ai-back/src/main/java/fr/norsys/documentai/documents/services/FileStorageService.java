@@ -48,7 +48,7 @@ public class FileStorageService {
         return fileName.substring(lastDotIndex);
     }
 
-    private int getFileSizeByKo(MultipartFile file) {
+    public int getFileSizeByKo(MultipartFile file) {
         return (int) (file.getSize() / 1024);
     }
 

@@ -3,6 +3,7 @@ package fr.norsys.documentai.documents.controllers;
 import fr.norsys.documentai.documents.dtos.CreateDocumentRequest;
 import fr.norsys.documentai.documents.dtos.DocumentResponse;
 import fr.norsys.documentai.documents.dtos.UpdateDocumentRequest;
+import fr.norsys.documentai.documents.dtos.DownloadedDocumentDTO;
 import fr.norsys.documentai.documents.enums.ComparatorOperator;
 import fr.norsys.documentai.documents.services.DocumentService;
 import fr.norsys.documentai.documents.entities.Document;
@@ -92,8 +93,9 @@ public class DocumentController implements MethodArgumentNotValidExceptionHandle
 
     @GetMapping("/{id}/download")
     public ResponseEntity<Resource> downloadDocument(@PathVariable UUID id) {
-        Document document = documentService.getDocumentById(id);
-        Resource resource = documentService.downloadDocument(id);
+        DownloadedDocumentDTO downloaded = documentService.downloadDocument(id);
+        Document document = downloaded.document();
+        Resource resource = downloaded.resource();
 
         String fileName = Paths.get(document.getFilePath()).getFileName().toString();
 

@@ -3,6 +3,7 @@ package fr.norsys.documentai.documents.services;
 import fr.norsys.documentai.documents.dtos.CreateDocumentRequest;
 import fr.norsys.documentai.documents.dtos.DocumentResponse;
 import fr.norsys.documentai.documents.dtos.UpdateDocumentRequest;
+import fr.norsys.documentai.documents.dtos.DownloadedDocumentDTO;
 import fr.norsys.documentai.documents.services.FileStorageService;
 import fr.norsys.documentai.documents.entities.Document;
 import fr.norsys.documentai.documents.entitySpecs.*;
@@ -122,14 +123,15 @@ public class DocumentService {
         documentRepository.deleteById(id);
     }
 
-    public Resource downloadDocument(UUID id) {
+    public DownloadedDocumentDTO downloadDocument(UUID id) {
         Document document = documentRepository.findById(id)
                 .orElseThrow(() -> new DocumentNotFoundException(
                         messageSource.getMessage("document.not.found.error", null, Locale.getDefault())
                 ));
         String filePath = document.getFilePath();
         String fileName = Paths.get(filePath).getFileName().toString();
-        return fileStorageService.loadAsResource(fileName);
+        Resource resource = fileStorageService.loadAsResource(fileName);
+        return new DownloadedDocumentDTO(document, resource);
     }
 }
 

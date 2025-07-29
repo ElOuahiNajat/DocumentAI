@@ -1,6 +1,7 @@
 package fr.norsys.documentai.documents.entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -34,7 +35,7 @@ public class Evaluation {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private int note;
+    private byte note;
 
     @CreatedDate
     private LocalDateTime createdAt;

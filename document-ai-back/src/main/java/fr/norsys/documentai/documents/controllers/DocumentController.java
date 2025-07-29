@@ -32,8 +32,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DocumentController implements MethodArgumentNotValidExceptionHandler {
     private final DocumentService documentService;
-    private final DocumentDownloadService documentDownloadService;
-    
+
     @GetMapping
     public Page<DocumentResponse> listDocuments(
             @RequestParam(required = false)String searchTerm,

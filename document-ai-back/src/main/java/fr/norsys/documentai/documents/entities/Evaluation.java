@@ -35,7 +35,7 @@ public class Evaluation {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private byte note;
+    private short note;
 
     @CreatedDate
     private LocalDateTime createdAt;

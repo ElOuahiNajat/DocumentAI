@@ -9,7 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -36,7 +35,6 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(columnDefinition = "text")
     private String content;
 
     @CreatedDate

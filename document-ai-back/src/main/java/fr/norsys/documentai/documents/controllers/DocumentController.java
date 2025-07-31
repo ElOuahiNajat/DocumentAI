@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.InputStreamResource;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -101,6 +102,19 @@ public class DocumentController implements MethodArgumentNotValidExceptionHandle
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(document.getFileType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .body(resource);
+    }
+
+    @GetMapping("/export/csv")
+    public ResponseEntity<InputStreamResource> exportDocumentsToCSV() {
+        InputStreamResource resource = new InputStreamResource(documentService.exportDocumentsToCSV());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=documents.csv");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType("text/csv"))
                 .body(resource);
     }
 }

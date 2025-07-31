@@ -4,11 +4,13 @@ import fr.norsys.documentai.documents.dtos.CreateDocumentRequest;
 import fr.norsys.documentai.documents.dtos.DocumentResponse;
 import fr.norsys.documentai.documents.dtos.UpdateDocumentRequest;
 import fr.norsys.documentai.documents.dtos.DownloadedDocumentDTO;
+import fr.norsys.documentai.documents.exceptions.ExportCsvException;
 import fr.norsys.documentai.documents.services.FileStorageService;
 import fr.norsys.documentai.documents.entities.Document;
 import fr.norsys.documentai.documents.entitySpecs.*;
 import fr.norsys.documentai.documents.enums.ComparatorOperator;
 import fr.norsys.documentai.documents.exceptions.DocumentNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 import fr.norsys.documentai.documents.repositories.DocumentRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+
+
 
 @Service
 @RequiredArgsConstructor
@@ -133,6 +145,63 @@ public class DocumentService {
         Resource resource = fileStorageService.loadAsResource(fileName);
         return new DownloadedDocumentDTO(document, resource);
     }
+
+    @Transactional(readOnly = true)
+    public ByteArrayInputStream exportDocumentsToCSV() {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+             OutputStreamWriter osWriter = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+             PrintWriter writer = new PrintWriter(osWriter)) {
+
+            writer.println("ID;Title;Author;Description;CreatedAt;FileType;FileSize");
+
+            int chunkSize = 500;
+            int page = 0;
+            Page<Document> documentPage;
+
+            do {
+                documentPage = documentRepository.findAll(
+                        PageRequest.of(
+                                page,
+                                chunkSize,
+                                Sort.by(Sort.Direction.DESC, "createdAt"))
+                );
+
+                for (Document doc : documentPage.getContent()) {
+                    writer.printf("%s;%s;%s;%s;%s;%s;%d%n",
+                            escapeCsv(doc.getId()),
+                            escapeCsv(doc.getTitle()),
+                            escapeCsv(doc.getAuthor()),
+                            escapeCsv(doc.getDescription()),
+                            doc.getCreatedAt(),
+                            escapeCsv(doc.getFileType()),
+                            doc.getFileSize()
+                    );
+                }
+
+                page++;
+
+            } while (documentPage.hasNext());
+
+            writer.flush();
+            return new ByteArrayInputStream(out.toByteArray());
+
+        } catch (Exception e) {
+            String errorMessage = messageSource.getMessage("export.csv.failed", null, Locale.getDefault());
+            throw new ExportCsvException(errorMessage);
+        }
+    }
+
+    private String escapeCsv(Object value) {
+        if (value == null) return "";
+        String str = value.toString();
+        if (str.contains(";") || str.contains("\"") || str.contains("\n")) {
+            str = str.replace("\"", "\"\"");
+            return "\"" + str + "\"";
+        }
+        return str;
+    }
+
+
 }
 
 

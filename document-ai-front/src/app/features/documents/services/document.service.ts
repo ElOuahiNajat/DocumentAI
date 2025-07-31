@@ -24,6 +24,29 @@ export class DocumentService {
     sizeValue: number | null = null,
   ): Observable<PaginatedListResponse<DocumentResponse>> {
     let params = new HttpParams().set("page", page.toString()).set("size", size.toString())
+    // Add parameters only if they are not null
+    if (searchTerm) {
+      params = params.set("searchTerm", searchTerm)
+    }
+    if (selectedSizeOperator) {
+      params = params.set("fileSizeComparator", selectedSizeOperator)
+    }
+    if (sizeValue !== null) {
+      params = params.set("fileSize", sizeValue.toString())
+    }
+    if (createdAtStart) {
+      params = params.set("createdAtStart", createdAtStart)
+    }
+    if (createdAtEnd) {
+      params = params.set("createdAtEnd", createdAtEnd)
+    }
+    if (updatedAtStart) {
+      params = params.set("updatedAtStart", updatedAtStart)
+    }
+    if (updatedAtEnd) {
+      params = params.set("updatedAtEnd", updatedAtEnd)
+    }
     return this.http.get<PaginatedListResponse<DocumentResponse>>(this.apiUrl, { params })
+
   }
 }

@@ -1,93 +1,112 @@
-import { Component, type OnInit } from "@angular/core"
+import { Component, type OnInit, type OnDestroy } from "@angular/core"
 import { CommonModule } from "@angular/common"
-import { DocumentCardComponent } from "../document-card/document-card"
+import { DocumentCardComponent } from "../../components/document-card/document-card"
+import { DocumentFilterComponent, type DocumentFilterData } from "../../components/document-filter/document-filter"
 import type { DocumentResponse } from "../../models/DocumentResponse"
-import { FormsModule } from "@angular/forms"
 import { DocumentService } from "../../services/document.service"
-import { PaginatedListResponse } from "../../../../shared/components/PaginatedListResponse"
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator'
-import {MatProgressSpinner} from "@angular/material/progress-spinner";
-import {Subscription} from "rxjs";
+import type { PaginatedListResponse } from "../../../../shared/components/PaginatedListResponse"
+import { MatPaginatorModule, type PageEvent } from "@angular/material/paginator"
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
+import { MatDialog, MatDialogModule } from "@angular/material/dialog"
+import type { Subscription } from "rxjs"
 
 @Component({
   selector: "app-document-list",
   standalone: true,
-  imports: [CommonModule, DocumentCardComponent, FormsModule, MatPaginatorModule, MatProgressSpinner],
-  templateUrl: "./document-list.html",
+  imports: [
+    CommonModule,
+    DocumentCardComponent,
+    DocumentFilterComponent,
+    MatPaginatorModule,
+    MatProgressSpinnerModule,
+    MatDialogModule,
+  ],
+  templateUrl:"document-list.html",
 })
-export class DocumentListComponent implements OnInit {
-  private documentsubscription?:Subscription;
+export class DocumentListComponent implements OnInit, OnDestroy {
+  private documentSubscription?: Subscription
   filteredDocuments: DocumentResponse[] = []
-  searchTerm = ""
   loading = true
-  // Removed selectedTimeFilter and selectedFileTypeFilter
-
-  // New filter properties
-  updatedAtStart: string | null = null
-  updatedAtEnd: string | null = null
-  createdAtStart: string | null = null
-  createdAtEnd: string | null = null
-  selectedSizeOperator = "gt" // Default to 'Greater than'
-  sizeValue: number | null = null // Size in MB
-
-  // Pagination properties for Angular Material Paginator
   currentPage = 1
-  pageSize = 10 // Renamed from itemsPerPage to match mat-paginator
-  totalDocuments = 0 // Renamed from totalElements to match mat-paginator
+  pageSize = 10
+  totalDocuments = 0
   totalPages = 1
 
-  constructor(private documentService: DocumentService) {}
+  filterData: DocumentFilterData = {
+    searchTerm: "",
+    updatedAtStart: null,
+    updatedAtEnd: null,
+    createdAtStart: null,
+    createdAtEnd: null,
+    selectedSizeOperator: "GREATER_THAN",
+    sizeValue: null
+  }
+
+  constructor(
+    private documentService: DocumentService,
+    public dialog: MatDialog,
+  ) {}
 
   ngOnInit() {
     this.loadDocuments()
   }
 
-  loadDocuments() {
-    this.loading = true
-    // @ts-ignore
-     this.documentsubscription= this.documentService
-        .getDocumentsPaginated(
-            this.currentPage - 1,
-            this.pageSize,
-            this.searchTerm,
-            this.updatedAtStart,
-            this.updatedAtEnd,
-            this.createdAtStart,
-            this.createdAtEnd,
-            this.selectedSizeOperator,
-            this.sizeValue ? this.sizeValue * 1024 * 1024 : null, // Convert MB to bytes
-        )
-        .subscribe({
-          next: (response: PaginatedListResponse<DocumentResponse>) => {
-            this.filteredDocuments = response.content
-            this.totalPages = response.totalPages
-            this.totalDocuments = response.totalElements // Map to totalDocuments for paginator
-            this.loading = false
-          },
-          error: (error: any) => {
-            console.error("Error loading documents:", error)
-            this.loading = false
-          },
-          complete:()=>{
-            this.documentsubscription?.unsubscribe();
-            this.loading=false;
-          }
-        })
+  ngOnDestroy(): void {
+    this.documentSubscription?.unsubscribe()
   }
 
-  onSearch() {
+  onFilterChange(filterData: DocumentFilterData): void {
+    this.filterData = { ...filterData }
     this.currentPage = 1
     this.loadDocuments()
   }
 
-  // New method for Angular Material Paginator
+  onAddDocument(): void {
+    // Handle add document logic here
+    console.log("Add new document")
+  }
+
+  loadDocuments() {
+    this.loading = true
+    const fileSizeInKB = this.filterData.sizeValue
+      ? this.filterData.sizeValue * 1024 : null // convert MB to KB before sending to backend
+
+    this.documentSubscription = this.documentService
+      .getDocumentsPaginated(
+        this.currentPage - 1,
+        this.pageSize,
+        this.filterData.searchTerm,
+        this.filterData.updatedAtStart,
+        this.filterData.updatedAtEnd,
+        this.filterData.createdAtStart,
+        this.filterData.createdAtEnd,
+        this.filterData.selectedSizeOperator,
+        fileSizeInKB,
+      )
+      .subscribe({
+        next: (response: PaginatedListResponse<DocumentResponse>) => {
+          this.filteredDocuments = response.content
+          this.totalPages = response.totalPages
+          this.totalDocuments = response.totalElements
+          this.loading = false
+        },
+        error: (error: any) => {
+          console.error("Error loading documents:", error)
+          this.loading = false
+        },
+        complete: () => {
+          this.documentSubscription?.unsubscribe()
+          this.loading = false
+        },
+      })
+  }
+
   onPageChange(event: PageEvent): void {
-    this.currentPage = event.pageIndex + 1 // Convert from 0-based to 1-based
+    this.currentPage = event.pageIndex + 1
     this.pageSize = event.pageSize
     this.loadDocuments()
   }
 
-  // Keep existing methods for compatibility (can be removed if not used elsewhere)
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page
@@ -111,15 +130,15 @@ export class DocumentListComponent implements OnInit {
     console.log("Download document:", document.title)
   }
 
-  onEditDocument(document: DocumentResponse): void {
-    console.log("Edit document:", document.title)
-  }
-
   onDetailDocument(document: DocumentResponse): void {
     console.log("View details for document:", document.title)
   }
 
   trackByDocumentId(index: number, document: DocumentResponse): string {
     return document.id
+  }
+
+  onEditDocument($event: DocumentResponse) {
+
   }
 }

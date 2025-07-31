@@ -1,119 +1,61 @@
 <div class="document-list-container bg-white from-slate-50 to-gray-100 min-h-screen">
-    <!-- Header -->
-    <!--  <div class="bg-white/80 backdrop-blur-sm shadow-lg border-b border-gray-200/60 px-6 py-1 sticky top-0 z-10">-->
+  <!-- Filter Component -->
+  <app-document-filter
+    [filterData]="filterData"
+    (filterChange)="onFilterChange($event)"
+    (addDocument)="onAddDocument()">
+  </app-document-filter>
 
-    <!--    &lt;!&ndash; Search and Filters &ndash;&gt;-->
-    <!--    <div class="mt-4 flex flex-col gap-4 mb-8">-->
-    <!--      &lt;!&ndash; First Row: Search, Created At, Updated At, and Ajouter Button &ndash;&gt;-->
-    <!--      <div class="flex flex-col sm:flex-row gap-4 flex-wrap items-center w-full">-->
-    <!--        &lt;!&ndash; Search Input &ndash;&gt;-->
-    <!--        <div class="relative w-full sm:max-w-xs">-->
-    <!--          <label for="search-input" class="sr-only">Search documents...</label>-->
-    <!--          <input id="search-input" type="text" [(ngModel)]="searchTerm" (input)="onSearch()"-->
-    <!--                 placeholder="Rechercher..."-->
-    <!--                 class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 pl-10 text-sm text-gray-900 ring-offset-background placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">-->
-    <!--          <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4">search</span>-->
-    <!--        </div>-->
+  <!-- Loading state -->
+  @if (loading) {
+    <div class="flex flex-col justify-center items-center py-20">
+      <mat-spinner color="primary" [diameter]="48"></mat-spinner>
+      <p class="mt-4 text-gray-600 font-medium">Loading documents...</p>
+    </div>
+  }
 
-    <!--        &lt;!&ndash; Created At Date Range Filter &ndash;&gt;-->
-    <!--        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-fit items-center">-->
-    <!--          <label for="created-at-start" class="text-sm font-medium text-gray-700 whitespace-nowrap">Created At:</label>-->
-    <!--          <input id="created-at-start" type="date" [(ngModel)]="createdAtStart" (change)="onSearch()"-->
-    <!--                 class="flex h-10 w-full sm:w-40 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">-->
-    <!--          <span class="text-gray-500">-</span>-->
-    <!--          <input id="created-at-end" type="date" [(ngModel)]="createdAtEnd" (change)="onSearch()"-->
-    <!--                 class="flex h-10 w-full sm:w-40 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">-->
-    <!--        </div>-->
+  <!-- Empty state -->
+  @if (!loading && filteredDocuments.length === 0) {
+    <div class="text-center py-20 px-6">
+      No Document Found
+    </div>
+  }
 
-    <!--        &lt;!&ndash; Updated At Date Range Filter &ndash;&gt;-->
-    <!--        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-fit items-center">-->
-    <!--          <label for="updated-at-start" class="text-sm font-medium text-gray-700 whitespace-nowrap">Updated At:</label>-->
-    <!--          <input id="updated-at-start" type="date" [(ngModel)]="updatedAtStart" (change)="onSearch()"-->
-    <!--                 class="flex h-10 w-full sm:w-40 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">-->
-    <!--          <span class="text-gray-500">-</span>-->
-    <!--          <input id="updated-at-end" type="date" [(ngModel)]="updatedAtEnd" (change)="onSearch()"-->
-    <!--                 class="flex h-10 w-full sm:w-40 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">-->
-    <!--        </div>-->
+  <!-- Document grid -->
+  @if (!loading && filteredDocuments.length > 0) {
+    <div class="p-6 pb-12 pt-12">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+        @for (document of filteredDocuments; track trackByDocumentId($index, document)) {
+          <app-document-card
+            [document]="document"
+            (edit)="onEditDocument($event)"
+            (delete)="onDeleteDocument($event)"
+            (download)="onDownloadDocument($event)"
+            class="transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:-translate-y-1">
+          </app-document-card>
+        }
+      </div>
+    </div>
+  }
 
-    <!--        &lt;!&ndash; Ajouter Button - pushed to the right &ndash;&gt;-->
-    <!--        <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gray-900 text-white shadow hover:bg-gray-800 h-10 px-4 py-2 sm:ml-auto">-->
-    <!--          <span class="material-icons mr-2 h-4 w-4">add</span>-->
-    <!--          Ajouter-->
-    <!--        </button>-->
-    <!--      </div>-->
+  <!-- Floating action button for mobile -->
+  <button
+    (click)="onAddDocument()"
+    class="fixed bottom-6 right-6 inline-flex items-center justify-center whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-14 w-14 bg-gray-900 text-white shadow-xl hover:shadow-2xl transition-all duration-200 md:hidden">
+    <span class="material-icons">add</span>
+  </button>
 
-    <!--      &lt;!&ndash; Second Row: Spacer for alignment, then Size Filter &ndash;&gt;-->
-    <!--      <div class="flex flex-col sm:flex-row gap-4 flex-wrap items-center w-full">-->
-    <!--        &lt;!&ndash; Placeholders to align "Size" filter under "Updated At" &ndash;&gt;-->
-    <!--        <div class="relative w-full sm:max-w-xs"></div> &lt;!&ndash; Mimics search input width &ndash;&gt;-->
-    <!--        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-fit items-center"></div> &lt;!&ndash; Mimics Created At filter width &ndash;&gt;-->
-
-    <!--        &lt;!&ndash; Size Filter &ndash;&gt;-->
-    <!--        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-fit items-center">-->
-    <!--          <label for="size-operator" class="text-sm font-medium text-gray-700 whitespace-nowrap">Size:</label>-->
-    <!--          <div class="relative w-full sm:w-32">-->
-    <!--            <select id="size-operator" [(ngModel)]="selectedSizeOperator" (change)="onSearch()"-->
-    <!--                    class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 appearance-none pr-8">-->
-    <!--              <option value="gt">Greater than (>)</option>-->
-    <!--              <option value="lt">Less than (<)</option>-->
-    <!--              <option value="eq">Equal to (=)</option>-->
-    <!--            </select>-->
-    <!--            <span class="material-icons absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">arrow_drop_down</span>-->
-    <!--          </div>-->
-    <!--          <input id="size-value" type="number" [(ngModel)]="sizeValue" (input)="onSearch()"-->
-    <!--                 placeholder="Value"-->
-    <!--                 class="flex h-10 w-full sm:w-24 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 ring-offset-background placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">-->
-    <!--          <span class="text-gray-500 text-sm">MB</span>-->
-    <!--        </div>-->
-    <!--      </div>-->
-    <!--    </div>-->
-    <!--  </div>-->
-    <!-- Loading state -->
-    @if (loading) {
-        <div class="flex flex-col justify-center items-center py-20">
-            <mat-spinner color="primary" [diameter]="48"></mat-spinner>
-            <p class="mt-4 text-gray-600 font-medium">Loading documents...</p>
-        </div>
-    }
-    <!-- Empty state -->
-    @if (!loading && filteredDocuments.length === 0) {
-        <div class="text-center py-20 px-6">
-           No Document Found
-        </div>
-    }
-    <!-- Document grid -->
-    @if (!loading && filteredDocuments.length > 0) {
-        <div class="p-6 pb-12 pt-12">
-            <!-- Results header -->
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-                @for (document of filteredDocuments; track trackByDocumentId($index, document)) {
-                    <app-document-card
-                            [document]="document"
-                            (edit)="onEditDocument($event)"
-                            (delete)="onDeleteDocument($event)"
-                            (download)="onDownloadDocument($event)"
-                            class="transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:-translate-y-1">
-                    </app-document-card>
-                }
-            </div>
-        </div>
-    }
-    <!-- Floating action button for mobile -->
-    <button class="fixed bottom-6 right-6 inline-flex items-center justify-center whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-14 w-14 bg-gray-900 text-white shadow-xl hover:shadow-2xl transition-all duration-200 md:hidden">
-        <span class="material-icons">add</span>
-    </button>
-    <!-- Angular Material Pagination -->
-    @if (!loading && filteredDocuments.length > 0) {
-        <div class="mb-6 flex justify-center items-center mt-8">
-            <mat-paginator
-                    [length]="totalDocuments"
-                    [pageSize]="pageSize"
-                    [pageSizeOptions]="[5, 10, 25, 100]"
-                    [pageIndex]="currentPage - 1"
-                    (page)="onPageChange($event)"
-                    aria-label="Select page">
-            </mat-paginator>
-        </div>
-    }
+  <!-- Angular Material Pagination -->
+  @if (!loading && filteredDocuments.length > 0) {
+    <div class="mb-6 flex justify-center items-center mt-8">
+      <mat-paginator
+        [length]="totalDocuments"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[5, 10, 25, 100]"
+        [pageIndex]="currentPage - 1"
+        (page)="onPageChange($event)"
+        aria-label="Select page">
+      </mat-paginator>
+    </div>
+  }
 </div>

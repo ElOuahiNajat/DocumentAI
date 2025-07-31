@@ -19,8 +19,6 @@ export class DocumentCardComponent {
   @Output() delete = new EventEmitter<DocumentResponse>()
   @Output() download = new EventEmitter<DocumentResponse>()
   @Output() detail = new EventEmitter<DocumentResponse>()
-  @Output() share = new EventEmitter<DocumentResponse>()
-  @Output() print = new EventEmitter<DocumentResponse>()
 
   onEdit(): void {
     this.edit.emit(this.document)
@@ -36,15 +34,5 @@ export class DocumentCardComponent {
 
   onDetail(): void {
     this.detail.emit(this.document)
-  }
-
-  onShare(): void {
-    console.log("Share document:", this.document.title)
-    this.share.emit(this.document)
-  }
-
-  onPrint(): void {
-    console.log("Print document:", this.document.title)
-    this.print.emit(this.document)
   }
 }

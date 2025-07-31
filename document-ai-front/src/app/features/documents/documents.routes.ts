@@ -1,5 +1,6 @@
 import type { Routes } from "@angular/router"
 
+// @ts-ignore
 export const routes: Routes = [
   {
     path: "",

@@ -4,6 +4,7 @@ import type { Observable } from "rxjs"
 import type { DocumentResponse } from "../models/DocumentResponse"
 import {PaginatedListResponse} from "../../../shared/components/PaginatedListResponse";
 import {environment} from "../../../../environments/environment";
+import {UpdateDocumentRequest} from '../models/UpdateDocumentRequest';
 
 @Injectable({
   providedIn: "root",
@@ -51,6 +52,10 @@ export class DocumentService {
   }
 
   addDocument(formData: FormData) {
-    return this.http.post(`${this.apiUrl}`, formData); 
+    return this.http.post(`${this.apiUrl}`, formData);
   }
+  updateDocument(id: string, request: UpdateDocumentRequest): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}`, request)
+  }
+
 }

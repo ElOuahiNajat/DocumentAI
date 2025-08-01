@@ -1,0 +1,25 @@
+<h2 mat-dialog-title class="text-center">Edit Document</h2>
+
+<mat-dialog-content class="mat-typography p-6"> <!-- Added p-6 for more padding -->
+  <form class="flex flex-col gap-6"> <!-- Increased gap for more spacing -->
+    <mat-form-field appearance="fill" class="w-full"> <!-- Changed to appearance="fill" -->
+      <mat-label>Title</mat-label>
+      <input matInput [(ngModel)]="editableDocument.title" name="title" required>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="w-full"> <!-- Changed to appearance="fill" -->
+      <mat-label>Author</mat-label>
+      <input matInput [(ngModel)]="editableDocument.author" name="author" required>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="w-full"> <!-- Changed to appearance="fill" -->
+      <mat-label>Description</mat-label>
+      <textarea matInput [(ngModel)]="editableDocument.description" name="description" rows="6" required></textarea> <!-- Increased rows for larger textarea -->
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="p-6 pt-0"> <!-- Added padding to actions -->
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!editableDocument.title || !editableDocument.author || !editableDocument.description">Save</button>
+</mat-dialog-actions>

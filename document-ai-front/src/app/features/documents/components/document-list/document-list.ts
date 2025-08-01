@@ -12,6 +12,9 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
 import { MatDialog, MatDialogModule } from "@angular/material/dialog"
 import type { Subscription } from "rxjs"
 import { AddDocumentDialog } from '../add-document-dialog/add-document-dialog';
+import {DocumentEditComponent} from '../document-edit/document-edit';
+import {UpdateDocumentRequest} from '../../models/UpdateDocumentRequest';
+import {UpdateDocumentDialogComponent} from '../update-document-dialog/update-document-dialog';
 
 @Component({
   selector: "app-document-list",
@@ -105,6 +108,62 @@ export class DocumentListComponent implements OnInit, OnDestroy {
         },
       })
   }
+  onEditDocument(document: DocumentResponse): void {
+    const dialogRef = this.dialog.open(DocumentEditComponent, {
+      width: "600px",
+      data: { document: document },
+    })
+
+    dialogRef.afterClosed().subscribe((result: UpdateDocumentRequest | undefined) => {
+      if (result) {
+        // Show confirmation before saving changes using UpdateDocumentDialogComponent
+        const saveConfirmDialogRef = this.dialog.open(UpdateDocumentDialogComponent, {
+          width: "90vw",
+          maxWidth: "400px",
+          minWidth: "300px",
+          data: {
+            documentTitle: result.title || document.title
+          }
+        })
+
+        saveConfirmDialogRef.afterClosed().subscribe((saveConfirmed: boolean) => {
+          if (saveConfirmed) {
+            this.saveDocument(document.id, result)
+          }
+        })
+      } else {
+        console.log("Edit dialog closed without saving or confirmation cancelled.")
+      }
+    })
+  }
+
+  private saveDocument(documentId: string, updateRequest: UpdateDocumentRequest): void {
+    this.documentService.updateDocument(documentId, updateRequest).subscribe({
+      next: () => {
+        this.snackBar.open(`Document "${updateRequest.title}" updated successfully`, 'Close', {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['success-snackbar']
+        })
+        this.loadDocuments()
+      },
+      error: (error: any) => {
+        console.error("Error updating document:", error)
+        this.snackBar.open(
+          `Failed to update document "${updateRequest.title}". ${error.message || "Unknown error"}`,
+          'Close',
+          {
+            duration: 5000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          }
+        )
+      },
+    })
+  }
+
 
   onPageChange(event: PageEvent): void {
     this.currentPage = event.pageIndex + 1
@@ -141,10 +200,6 @@ export class DocumentListComponent implements OnInit, OnDestroy {
 
   trackByDocumentId(index: number, document: DocumentResponse): string {
     return document.id
-  }
-
-  onEditDocument($event: DocumentResponse) {
-
   }
 
   openAddDocumentDialog(): void {

@@ -1,14 +1,17 @@
 import { Component, type OnInit, type OnDestroy } from "@angular/core"
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from "@angular/common"
 import { DocumentCardComponent } from "../../components/document-card/document-card"
 import { DocumentFilterComponent, type DocumentFilterData } from "../../components/document-filter/document-filter"
 import type { DocumentResponse } from "../../models/DocumentResponse"
+import { FormsModule } from "@angular/forms"
 import { DocumentService } from "../../services/document.service"
 import type { PaginatedListResponse } from "../../../../shared/components/PaginatedListResponse"
 import { MatPaginatorModule, type PageEvent } from "@angular/material/paginator"
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
 import { MatDialog, MatDialogModule } from "@angular/material/dialog"
 import type { Subscription } from "rxjs"
+import { AddDocumentDialog } from '../add-document-dialog/add-document-dialog';
 
 @Component({
   selector: "app-document-list",
@@ -20,6 +23,7 @@ import type { Subscription } from "rxjs"
     MatPaginatorModule,
     MatProgressSpinnerModule,
     MatDialogModule,
+    FormsModule
   ],
   templateUrl:"document-list.html",
 })
@@ -45,6 +49,7 @@ export class DocumentListComponent implements OnInit, OnDestroy {
   constructor(
     private documentService: DocumentService,
     public dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -140,5 +145,33 @@ export class DocumentListComponent implements OnInit, OnDestroy {
 
   onEditDocument($event: DocumentResponse) {
 
+  }
+
+  openAddDocumentDialog(): void {
+    const dialogRef = this.dialog.open(AddDocumentDialog, {
+      maxWidth: '90vw',
+      panelClass: 'custom-dialog-container',
+    });
+
+    dialogRef.afterClosed().subscribe((formData: FormData) => {
+      if (formData) {
+        this.documentService.addDocument(formData).subscribe({
+          next: () => {
+            this.snackBar.open('Document added successfully!', 'Close', {
+              duration: 3000,
+              panelClass: ['snackbar-success']
+            });
+            this.loadDocuments();
+          },
+          error: (err) => {
+            console.error('Error adding document:', err);
+            this.snackBar.open('Failed to add document.', 'Close', {
+              duration: 3000,
+              panelClass: ['snackbar-error']
+            });
+          }
+        });
+      }
+    });
   }
 }

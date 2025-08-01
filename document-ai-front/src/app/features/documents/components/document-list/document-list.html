@@ -21,6 +21,17 @@
     </div>
   }
 
+  <!-- Ajouter Button - pushed to the right -->
+  <div class="w-full flex">
+    <button
+      class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gray-900 text-white shadow hover:bg-gray-800 h-10 px-4 py-2 ml-auto"
+      (click)="openAddDocumentDialog()"
+      >
+      <span class="material-icons mr-2 h-4 w-4">add</span>
+      Ajouter
+    </button>
+  </div>
+
   <!-- Document grid -->
   @if (!loading && filteredDocuments.length > 0) {
     <div class="p-6 pb-12 pt-12">

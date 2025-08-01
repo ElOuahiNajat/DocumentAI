@@ -49,4 +49,8 @@ export class DocumentService {
     return this.http.get<PaginatedListResponse<DocumentResponse>>(this.apiUrl, { params })
 
   }
+
+  addDocument(formData: FormData) {
+    return this.http.post(`${this.apiUrl}`, formData); 
+  }
 }

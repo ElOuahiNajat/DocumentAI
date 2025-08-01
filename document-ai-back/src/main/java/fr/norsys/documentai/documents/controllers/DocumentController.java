@@ -22,8 +22,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.InputStreamResource;
 
-import java.io.IOException;
 import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -115,6 +117,14 @@ public class DocumentController implements MethodArgumentNotValidExceptionHandle
         return ResponseEntity.ok()
                 .headers(headers)
                 .contentType(MediaType.parseMediaType("text/csv"))
+                .body(resource);
+    }
+
+    @GetMapping("/{id}/preview")
+    public ResponseEntity<Resource> previewDocument(@PathVariable UUID id) {
+        Resource resource = documentService.getDocumentAsResource(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
     }
 }

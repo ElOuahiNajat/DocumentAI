@@ -22,6 +22,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.Resource;
+import fr.norsys.documentai.documents.exceptions.DocumentDownloadException;
+import fr.norsys.documentai.documents.exceptions.DocumentUnreadableException;
+
+import org.springframework.core.io.UrlResource;
+import org.springframework.core.io.Resource;
+
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -199,6 +208,24 @@ public class DocumentService {
             return "\"" + str + "\"";
         }
         return str;
+    }
+
+    public Resource getDocumentAsResource(UUID id) {
+        Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new DocumentNotFoundException("document.not.found.error"));
+
+        Path filePath = Paths.get(document.getFilePath());
+
+        try {
+            UrlResource resource = new UrlResource(filePath.toUri());
+            if (resource.exists() && resource.isReadable()) {
+                return resource;
+            } else {
+                throw new DocumentUnreadableException("document.unreadable");
+            }
+        } catch (MalformedURLException e) {
+            throw new DocumentDownloadException("document.download.failed");
+        }
     }
 
 

@@ -4,14 +4,20 @@ import fr.norsys.documentai.documents.dtos.CreateDocumentRequest;
 import fr.norsys.documentai.documents.dtos.DocumentResponse;
 import fr.norsys.documentai.documents.dtos.UpdateDocumentRequest;
 import fr.norsys.documentai.documents.dtos.DownloadedDocumentDTO;
+import fr.norsys.documentai.documents.dtos.FeedbackRequest;
+import fr.norsys.documentai.documents.dtos.FeedbackResponse;
 import fr.norsys.documentai.documents.exceptions.ExportCsvException;
 import fr.norsys.documentai.documents.services.FileStorageService;
 import fr.norsys.documentai.documents.entities.Document;
+import fr.norsys.documentai.documents.entities.Comment;
+import fr.norsys.documentai.documents.entities.Evaluation;
 import fr.norsys.documentai.documents.entitySpecs.*;
 import fr.norsys.documentai.documents.enums.ComparatorOperator;
 import fr.norsys.documentai.documents.exceptions.DocumentNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import fr.norsys.documentai.documents.repositories.DocumentRepository;
+import fr.norsys.documentai.documents.repositories.CommentRepository;
+import fr.norsys.documentai.documents.repositories.EvaluationRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -57,6 +63,8 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final MessageSource messageSource;
     private final FileStorageService fileStorageService;
+    private final CommentRepository commentRepository;
+    private final EvaluationRepository evaluationRepository;
 
 
     public Page<DocumentResponse> getDocuments(
@@ -104,7 +112,7 @@ public class DocumentService {
         Specification<Document> finalSpec = Specification.allOf(documentSpecs);
 
         return documentRepository.findAll(finalSpec, pageable)
-                .map(DocumentResponse::new);
+                .map(doc -> new DocumentResponse(doc, new ArrayList<>()));
 
 
     }
@@ -228,7 +236,47 @@ public class DocumentService {
         }
     }
 
+    public void addFeedback(UUID documentId, FeedbackRequest feedbackRequest) {
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new DocumentNotFoundException(
+                        messageSource.getMessage("document.not.found.error", null, Locale.getDefault())
+                ));
 
+        if (feedbackRequest.content() != null && !feedbackRequest.content().isBlank()) {
+            Comment comment = Comment.builder()
+                    .content(feedbackRequest.content())
+                    .document(document)
+                    .build();
+            commentRepository.save(comment);
+        }
+
+        if (feedbackRequest.note() != null) {
+            Evaluation evaluation = Evaluation.builder()
+                    .note(feedbackRequest.note())
+                    .document(document)
+                    .build();
+            evaluationRepository.save(evaluation);
+        }
+    }
+
+    public DocumentResponse getDocumentById(UUID id) {
+        Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new DocumentNotFoundException(
+                        messageSource.getMessage("document.not.found.error", null, Locale.getDefault())
+                ));
+
+        List<FeedbackResponse> feedbacks = new ArrayList<>();
+
+        commentRepository.findByDocumentId(id).forEach(comment ->
+            feedbacks.add(new FeedbackResponse(comment.getContent(), null, comment.getCreatedAt()))
+        );
+
+        evaluationRepository.findByDocumentId(id).forEach(evaluation ->
+            feedbacks.add(new FeedbackResponse(null, evaluation.getNote(), evaluation.getCreatedAt()))
+        );
+
+        return new DocumentResponse(document, feedbacks);
+    }
 }
 
 

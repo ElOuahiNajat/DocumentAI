@@ -4,6 +4,7 @@ import fr.norsys.documentai.documents.dtos.CreateDocumentRequest;
 import fr.norsys.documentai.documents.dtos.DocumentResponse;
 import fr.norsys.documentai.documents.dtos.UpdateDocumentRequest;
 import fr.norsys.documentai.documents.dtos.DownloadedDocumentDTO;
+import fr.norsys.documentai.documents.dtos.FeedbackRequest;
 import fr.norsys.documentai.documents.enums.ComparatorOperator;
 import fr.norsys.documentai.documents.services.DocumentService;
 import fr.norsys.documentai.documents.entities.Document;
@@ -126,5 +127,20 @@ public class DocumentController implements MethodArgumentNotValidExceptionHandle
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
+    }
+
+    @PostMapping("/{id}/feedback")
+    public ResponseEntity<Void> giveFeedback(
+            @PathVariable UUID id,
+            @Valid @RequestBody FeedbackRequest feedbackRequest
+    ) {
+        documentService.addFeedback(id, feedbackRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DocumentResponse> getDocumentWithFeedback(@PathVariable UUID id) {
+        DocumentResponse response = documentService.getDocumentById(id);
+        return ResponseEntity.ok(response);
     }
 }

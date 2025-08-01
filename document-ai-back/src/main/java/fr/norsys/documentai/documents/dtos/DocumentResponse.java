@@ -3,6 +3,7 @@ package fr.norsys.documentai.documents.dtos;
 import fr.norsys.documentai.documents.entities.Document;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record DocumentResponse(
@@ -13,10 +14,10 @@ public record DocumentResponse(
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         String fileType,
-        Integer fileSize
-        
+        Integer fileSize,
+        List<FeedbackResponse> feedbacks
 ) {
-    public DocumentResponse(Document doc) {
+    public DocumentResponse(Document doc, List<FeedbackResponse> feedbacks) {
         this(
                 doc.getId(),
                 doc.getTitle(),
@@ -25,10 +26,8 @@ public record DocumentResponse(
                 doc.getCreatedAt(),
                 doc.getUpdatedAt(),
                 doc.getFileType(),
-                doc.getFileSize()
-
+                doc.getFileSize(),
+                feedbacks
         );
     }
-   
 }
-

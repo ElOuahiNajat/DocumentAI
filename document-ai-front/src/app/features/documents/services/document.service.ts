@@ -51,6 +51,10 @@ export class DocumentService {
 
   }
 
+   deleteDocument(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
   addDocument(formData: FormData) {
     return this.http.post(`${this.apiUrl}`, formData);
   }

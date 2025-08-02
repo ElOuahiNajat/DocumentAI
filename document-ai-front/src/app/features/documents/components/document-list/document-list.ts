@@ -1,20 +1,22 @@
 import { Component, type OnInit, type OnDestroy } from "@angular/core"
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from "@angular/common"
 import { DocumentCardComponent } from "../../components/document-card/document-card"
 import { DocumentFilterComponent, type DocumentFilterData } from "../../components/document-filter/document-filter"
 import type { DocumentResponse } from "../../models/DocumentResponse"
 import { FormsModule } from "@angular/forms"
 import { DocumentService } from "../../services/document.service"
-import type { PaginatedListResponse } from "../../../../shared/components/PaginatedListResponse"
-import { MatPaginatorModule, type PageEvent } from "@angular/material/paginator"
+import { PaginatedListResponse } from "../../../../shared/components/PaginatedListResponse"
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator'
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
+import {Subscription} from "rxjs";
+import { DeleteDocumentDialogComponent } from "../../components/delete-document-dialog/delete-document-dialog"  
 import { MatDialog, MatDialogModule } from "@angular/material/dialog"
 import type { Subscription } from "rxjs"
 import { AddDocumentDialog } from '../add-document-dialog/add-document-dialog';
 import {DocumentEditComponent} from '../document-edit/document-edit';
 import {UpdateDocumentRequest} from '../../models/UpdateDocumentRequest';
 import {UpdateDocumentDialogComponent} from '../update-document-dialog/update-document-dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar'
 
 @Component({
   selector: "app-document-list",
@@ -26,12 +28,14 @@ import {UpdateDocumentDialogComponent} from '../update-document-dialog/update-do
     MatPaginatorModule,
     MatProgressSpinnerModule,
     MatDialogModule,
-    FormsModule
+    FormsModule,
+    MatSnackBarModule
   ],
   templateUrl:"document-list.html",
 })
 export class DocumentListComponent implements OnInit, OnDestroy {
   private documentSubscription?: Subscription
+  private deleteDocumentSubscription?: Subscription;
   filteredDocuments: DocumentResponse[] = []
   loading = true
   currentPage = 1
@@ -58,9 +62,10 @@ export class DocumentListComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadDocuments()
   }
-
+ 
   ngOnDestroy(): void {
     this.documentSubscription?.unsubscribe()
+    this.deleteDocumentSubscription?.unsubscribe()
   }
 
   onFilterChange(filterData: DocumentFilterData): void {
@@ -186,8 +191,61 @@ export class DocumentListComponent implements OnInit, OnDestroy {
     return pages
   }
 
-  onDeleteDocument(document: DocumentResponse): void {
-    console.log("Delete document:", document.title)
+ onDeleteDocument(document: DocumentResponse): void {
+    const dialogRef = this.dialog.open(DeleteDocumentDialogComponent, {
+      maxWidth: '95vw',
+      width: 'auto',
+      height: 'auto',
+      disableClose: true,
+      panelClass: 'responsive-dialog',
+      data: {
+        documentTitle: document.title
+      }
+    })
+
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result === true) {
+        this.performDocumentDeletion(document)
+      }
+    })
+  }
+
+  private performDocumentDeletion(document: DocumentResponse): void {
+    this.deleteDocumentSubscription?.unsubscribe()
+
+    this.deleteDocumentSubscription = this.documentService.deleteDocument(document.id).subscribe({
+      next: () => {
+        this.snackBar.open(`Document "${document.title}" deleted successfully`, 'Close', {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['success-snackbar']
+        })
+
+        this.loadDocuments()
+      },
+      error: (err) => {
+        console.error('Error deleting document:', err)
+
+        const snackBarRef = this.snackBar.open(
+          `Failed to delete document "${document.title}". Would you like to retry?`,
+          'Retry',
+          {
+            duration: 8000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          }
+        )
+
+        snackBarRef.onAction().subscribe(() => {
+          this.performDocumentDeletion(document)
+        })
+      },
+      complete: () => {
+        this.deleteDocumentSubscription?.unsubscribe()
+      }
+    })
   }
 
   onDownloadDocument(document: DocumentResponse): void {

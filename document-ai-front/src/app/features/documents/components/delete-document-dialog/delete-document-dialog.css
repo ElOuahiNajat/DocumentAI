@@ -1,0 +1,17 @@
+.responsive-dialog .mat-dialog-container {
+  width: auto !important;
+  max-width: 95vw !important;
+  min-width: 300px;
+  height: auto !important;
+  max-height: 90vh !important;
+  overflow: auto;
+  resize: both; 
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.responsive-content {
+  word-wrap: break-word;
+  max-width: 100%;
+}
+

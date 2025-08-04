@@ -9,9 +9,8 @@ import { PaginatedListResponse } from "../../../../shared/components/PaginatedLi
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator'
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
 import {Subscription} from "rxjs";
-import { DeleteDocumentDialogComponent } from "../../components/delete-document-dialog/delete-document-dialog"  
+import { DeleteDocumentDialogComponent } from "../../components/delete-document-dialog/delete-document-dialog"
 import { MatDialog, MatDialogModule } from "@angular/material/dialog"
-import type { Subscription } from "rxjs"
 import { AddDocumentDialog } from '../add-document-dialog/add-document-dialog';
 import {DocumentEditComponent} from '../document-edit/document-edit';
 import {UpdateDocumentRequest} from '../../models/UpdateDocumentRequest';
@@ -65,7 +64,7 @@ export class DocumentListComponent implements OnInit, OnDestroy {
     selectedSizeOperator: "GREATER_THAN",
     sizeValue: null
   }
-  
+
 
   constructor(
     private documentService: DocumentService,
@@ -76,7 +75,7 @@ export class DocumentListComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadDocuments()
   }
- 
+
   ngOnDestroy(): void {
     this.documentSubscription?.unsubscribe()
     this.deleteDocumentSubscription?.unsubscribe()
@@ -328,7 +327,7 @@ export class DocumentListComponent implements OnInit, OnDestroy {
           duration: 3000,
           panelClass: ['snackbar-success']
         });
-      }, 1000); 
+      }, 1000);
     },
     error: (error) => {
       console.error('Download error:', error);
@@ -342,5 +341,38 @@ export class DocumentListComponent implements OnInit, OnDestroy {
     }
   });
 }
+
+  exportDocumentsToCSV() {
+    this.documentService.exportDocumentsToCSV().subscribe({
+      next: (blob: Blob) => {
+        // Créer un lien de téléchargement
+        const downloadURL = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadURL;
+        link.download = 'documents.csv';
+        link.click();
+        window.URL.revokeObjectURL(downloadURL);
+
+        // Afficher snackbar succès
+        this.snackBar.open('Export CSV réussi !', 'Fermer', {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-success']
+        });
+      },
+      error: (error) => {
+        console.error('Erreur lors de l’export CSV :', error);
+
+        // Afficher snackbar erreur
+        this.snackBar.open('Erreur lors de l’export CSV.', 'Fermer', {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-error']
+        });
+      }
+    });
+  }
 
 }

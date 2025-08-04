@@ -65,10 +65,15 @@ export class DocumentService {
 
   downloadDocumentWithHeaders(documentId: string): Observable<HttpResponse<Blob>> {
     const url = `${this.apiUrl}/${documentId}/download`
-    
+
     return this.http.get(url, {
       responseType: 'blob',
-      observe: 'response' 
+      observe: 'response'
+    })
+  }
+  exportDocumentsToCSV(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/export/csv`, {
+      responseType: 'blob',
     })
   }
 

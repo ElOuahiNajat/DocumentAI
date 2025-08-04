@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core"
-import { HttpClient, HttpParams } from "@angular/common/http"
+import { HttpClient, HttpParams, HttpResponse } from "@angular/common/http"
 import type { Observable } from "rxjs"
 import type { DocumentResponse } from "../models/DocumentResponse"
 import {PaginatedListResponse} from "../../../shared/components/PaginatedListResponse";
@@ -60,6 +60,16 @@ export class DocumentService {
   }
   updateDocument(id: string, request: UpdateDocumentRequest): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/${id}`, request)
+  }
+
+
+  downloadDocumentWithHeaders(documentId: string): Observable<HttpResponse<Blob>> {
+    const url = `${this.apiUrl}/${documentId}/download`
+    
+    return this.http.get(url, {
+      responseType: 'blob',
+      observe: 'response' 
+    })
   }
 
 }

@@ -24,8 +24,8 @@ export class DocumentButtonComponent {
   @Input() ariaLabel = ""
   @Input() iconClass = "" // Optional class for icon color (e.g., 'text-red-500')
   @Output() buttonClick = new EventEmitter<void>()
-
-  onClick(): void {
-    this.buttonClick.emit()
+  
+    onClick(): void {
+      this.buttonClick.emit();
   }
 }

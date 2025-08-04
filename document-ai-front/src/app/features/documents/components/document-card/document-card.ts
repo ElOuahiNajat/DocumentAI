@@ -5,11 +5,12 @@ import { DocumentButtonComponent } from "../document-button/document-button" // 
 import { MatCardModule } from "@angular/material/card" // Import MatCardModule
 import { MatButtonModule } from "@angular/material/button" // Import MatButtonModule
 import { MatIconModule } from "@angular/material/icon" // Import MatIconModule
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: "app-document-card",
   standalone: true,
-  imports: [CommonModule, DocumentButtonComponent, MatCardModule, MatButtonModule, MatIconModule], // Add MatCardModule to imports
+  imports: [CommonModule, DocumentButtonComponent, MatCardModule, MatButtonModule, MatIconModule,  MatProgressSpinnerModule], // Add MatCardModule to imports
   templateUrl: "./document-card.html",
   styleUrls: ["./document-card.css"], // Changed back to .css
 })
@@ -19,7 +20,9 @@ export class DocumentCardComponent {
   @Output() delete = new EventEmitter<DocumentResponse>()
   @Output() download = new EventEmitter<DocumentResponse>()
   @Output() detail = new EventEmitter<DocumentResponse>()
-
+  @Output() share = new EventEmitter<DocumentResponse>()
+  @Output() print = new EventEmitter<DocumentResponse>()
+  
   onEdit(): void {
     this.edit.emit(this.document)
   }
@@ -35,4 +38,15 @@ export class DocumentCardComponent {
   onDetail(): void {
     this.detail.emit(this.document)
   }
+
+  onShare(): void {
+    console.log("Share document:", this.document.title)
+    this.share.emit(this.document)
+  }
+
+  onPrint(): void {
+    console.log("Print document:", this.document.title)
+    this.print.emit(this.document)
+  }
+  
 }

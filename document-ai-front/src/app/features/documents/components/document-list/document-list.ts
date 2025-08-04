@@ -16,7 +16,7 @@ import { AddDocumentDialog } from '../add-document-dialog/add-document-dialog';
 import {DocumentEditComponent} from '../document-edit/document-edit';
 import {UpdateDocumentRequest} from '../../models/UpdateDocumentRequest';
 import {UpdateDocumentDialogComponent} from '../update-document-dialog/update-document-dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar'
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: "app-document-list",
@@ -31,13 +31,26 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar'
     FormsModule,
     MatSnackBarModule
   ],
+
   templateUrl:"document-list.html",
 })
 export class DocumentListComponent implements OnInit, OnDestroy {
   private documentSubscription?: Subscription
+  private downloadSubscription?: Subscription;
   private deleteDocumentSubscription?: Subscription;
   filteredDocuments: DocumentResponse[] = []
   loading = true
+  // Removed selectedTimeFilter and selectedFileTypeFilter
+
+  // New filter properties
+  updatedAtStart: string | null = null
+  updatedAtEnd: string | null = null
+  createdAtStart: string | null = null
+  createdAtEnd: string | null = null
+  selectedSizeOperator = "gt" // Default to 'Greater than'
+  sizeValue: number | null = null // Size in MB
+
+  // Pagination properties for Angular Material Paginator
   currentPage = 1
   pageSize = 10
   totalDocuments = 0
@@ -52,6 +65,7 @@ export class DocumentListComponent implements OnInit, OnDestroy {
     selectedSizeOperator: "GREATER_THAN",
     sizeValue: null
   }
+  
 
   constructor(
     private documentService: DocumentService,
@@ -247,11 +261,6 @@ export class DocumentListComponent implements OnInit, OnDestroy {
       }
     })
   }
-
-  onDownloadDocument(document: DocumentResponse): void {
-    console.log("Download document:", document.title)
-  }
-
   onDetailDocument(document: DocumentResponse): void {
     console.log("View details for document:", document.title)
   }
@@ -287,4 +296,51 @@ export class DocumentListComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+ onDownloadDocument(doc: DocumentResponse): void {
+  this.downloadSubscription = this.documentService.downloadDocumentWithHeaders(doc.id).subscribe({
+    next: (response) => {
+      const blob = response.body as Blob;
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let fileName = doc.title;
+
+      if (contentDisposition) {
+        const matches = /filename="(.+?)"/.exec(contentDisposition);
+        if (matches && matches[1]) {
+          fileName = matches[1];
+        }
+      }
+
+      this.snackBar.open(`Download of "${fileName}" started.`, 'Close', {
+        duration: 2000,
+        panelClass: ['snackbar-info']
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      window.URL.revokeObjectURL(url);
+
+      setTimeout(() => {
+        this.snackBar.open(`Download of "${fileName}" succeeded.`, 'Close', {
+          duration: 3000,
+          panelClass: ['snackbar-success']
+        });
+      }, 1000); 
+    },
+    error: (error) => {
+      console.error('Download error:', error);
+      this.snackBar.open('Download failed. Please try again.', 'Close', {
+        duration: 5000,
+        panelClass: ['snackbar-error']
+      });
+    },
+    complete: () => {
+      this.downloadSubscription?.unsubscribe();
+    }
+  });
+}
+
 }

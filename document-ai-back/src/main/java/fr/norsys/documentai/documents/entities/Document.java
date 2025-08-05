@@ -47,8 +47,5 @@ public class Document {
     private String filePath;
 
     @OneToMany(mappedBy = "document", fetch = FetchType.LAZY)
-    private List<Evaluation> evaluations;
-
-    @OneToMany(mappedBy = "document", fetch = FetchType.LAZY)
-    private List<Comment> comments;
+    private List<Feedback> feedbacks;
 }

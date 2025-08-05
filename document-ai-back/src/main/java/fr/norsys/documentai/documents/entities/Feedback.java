@@ -18,11 +18,11 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.UUID;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
-@Table(name = "comments")
+@Table(name = "feedbacks")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
@@ -30,17 +30,20 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode
-public class Comment {
+public class Feedback {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private String content;
+    private String content; 
+
+    private Short note; 
 
     @CreatedDate
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "document_id")
+    @JoinColumn(name = "document_id", nullable = false)
     private Document document;
 }

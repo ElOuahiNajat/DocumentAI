@@ -9,15 +9,13 @@ import fr.norsys.documentai.documents.dtos.FeedbackResponse;
 import fr.norsys.documentai.documents.exceptions.ExportCsvException;
 import fr.norsys.documentai.documents.services.FileStorageService;
 import fr.norsys.documentai.documents.entities.Document;
-import fr.norsys.documentai.documents.entities.Comment;
-import fr.norsys.documentai.documents.entities.Evaluation;
+import fr.norsys.documentai.documents.entities.Feedback;
 import fr.norsys.documentai.documents.entitySpecs.*;
 import fr.norsys.documentai.documents.enums.ComparatorOperator;
 import fr.norsys.documentai.documents.exceptions.DocumentNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import fr.norsys.documentai.documents.repositories.DocumentRepository;
-import fr.norsys.documentai.documents.repositories.CommentRepository;
-import fr.norsys.documentai.documents.repositories.EvaluationRepository;
+import fr.norsys.documentai.documents.repositories.FeedbackRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -63,8 +61,7 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final MessageSource messageSource;
     private final FileStorageService fileStorageService;
-    private final CommentRepository commentRepository;
-    private final EvaluationRepository evaluationRepository;
+    private final FeedbackRepository feedbackRepository;
 
 
     public Page<DocumentResponse> getDocuments(
@@ -242,21 +239,13 @@ public class DocumentService {
                         messageSource.getMessage("document.not.found.error", null, Locale.getDefault())
                 ));
 
-        if (feedbackRequest.content() != null && !feedbackRequest.content().isBlank()) {
-            Comment comment = Comment.builder()
-                    .content(feedbackRequest.content())
-                    .document(document)
-                    .build();
-            commentRepository.save(comment);
-        }
+        Feedback feedback = Feedback.builder()
+                .content(feedbackRequest.content())
+                .note(feedbackRequest.note())
+                .document(document)
+                .build();
 
-        if (feedbackRequest.note() != null) {
-            Evaluation evaluation = Evaluation.builder()
-                    .note(feedbackRequest.note())
-                    .document(document)
-                    .build();
-            evaluationRepository.save(evaluation);
-        }
+        feedbackRepository.save(feedback);
     }
 
     public DocumentResponse getDocumentById(UUID id) {
@@ -265,15 +254,10 @@ public class DocumentService {
                         messageSource.getMessage("document.not.found.error", null, Locale.getDefault())
                 ));
 
-        List<FeedbackResponse> feedbacks = new ArrayList<>();
-
-        commentRepository.findByDocumentId(id).forEach(comment ->
-            feedbacks.add(new FeedbackResponse(comment.getContent(), null, comment.getCreatedAt()))
-        );
-
-        evaluationRepository.findByDocumentId(id).forEach(evaluation ->
-            feedbacks.add(new FeedbackResponse(null, evaluation.getNote(), evaluation.getCreatedAt()))
-        );
+        List<FeedbackResponse> feedbacks = feedbackRepository.findByDocumentIdOrderByCreatedAtDesc(id)
+                .stream()
+                .map(f -> new FeedbackResponse(f.getContent(), f.getNote(), f.getCreatedAt()))
+                .toList();
 
         return new DocumentResponse(document, feedbacks);
     }

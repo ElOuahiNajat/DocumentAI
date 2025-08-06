@@ -15,7 +15,11 @@ import { AddDocumentDialog } from '../add-document-dialog/add-document-dialog';
 import {DocumentEditComponent} from '../document-edit/document-edit';
 import {UpdateDocumentRequest} from '../../models/UpdateDocumentRequest';
 import {UpdateDocumentDialogComponent} from '../update-document-dialog/update-document-dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar'
+import { DocumentViewDialog } from '../document-view-dialog/document-view-dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: "app-document-list",
@@ -28,7 +32,10 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     MatProgressSpinnerModule,
     MatDialogModule,
     FormsModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule
   ],
 
   templateUrl:"document-list.html",
@@ -375,4 +382,11 @@ export class DocumentListComponent implements OnInit, OnDestroy {
     });
   }
 
+
+  openDocumentView(document: DocumentResponse): void {
+    this.dialog.open(DocumentViewDialog, {
+      data: document,
+      width: '600px'
+    });
+  }
 }

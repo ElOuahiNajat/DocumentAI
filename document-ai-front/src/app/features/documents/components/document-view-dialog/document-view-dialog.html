@@ -1,0 +1,58 @@
+<h2 mat-dialog-title>Détails du Document</h2>
+
+<mat-dialog-content>
+  <p><strong>Title:</strong> {{ document.title }}</p>
+  <p><strong>Author:</strong> {{ document.author }}</p>
+  <p><strong>Description:</strong> {{ document.description }}</p>
+  <p><strong>Creation date:</strong> {{ document.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+
+  <h3>Add a comment</h3>
+  <mat-form-field appearance="fill" class="w-100">
+    <mat-label>Comment</mat-label>
+    <textarea matInput [(ngModel)]="feedbackContent" rows="3"></textarea>
+  </mat-form-field>
+
+  <h4>Evaluation</h4>
+    <div style="display: flex; align-items: center; gap: 5px;">
+    <mat-icon
+        *ngFor="let star of stars; let i = index"
+        (click)="setRating(i + 1)"
+        [ngClass]="{
+        'text-warning': i < feedbackRating,
+        'text-muted': i >= feedbackRating,
+        'cursor-pointer': true
+        }"
+    >
+        {{ i < feedbackRating ? 'star' : 'star_border' }}
+    </mat-icon>
+    </div>
+
+  <button
+    mat-raised-button
+    color="primary"
+    class="mt-2"
+    (click)="submitFeedback()"
+    [disabled]="isSubmitting || !isFeedbackValid()"
+    >
+    {{ isSubmitting ? 'Sending in progress...' : 'Send' }}
+  </button>
+
+  <h3 class="mt-4">Feedbacks</h3>
+  <div *ngIf="feedbacks.length === 0" class="text-muted mt-2">No comments yet.</div>
+  <div *ngFor="let fb of feedbacks" class="comment mt-2" style="display: flex; align-items: center; gap: 10px; justify-content: space-between;">
+    <div style="flex: 1;">
+      {{ fb.content }}
+    </div>
+    <div>
+      <mat-icon *ngFor="let star of stars; let i = index" [class.text-warning]="i < fb.note">
+        {{ i < fb.note ? 'star' : 'star_border' }}
+      </mat-icon>
+    </div>
+    <div style="min-width: 150px; text-align: right; color: gray; font-size: 0.85em;">
+      {{ convertToDate(fb.createdAt) | date:'short' }}
+    </div>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end" style="margin-top: 20px;">
+  <button mat-button color="warn" (click)="closeDialog()">Close</button>
+</mat-dialog-actions>

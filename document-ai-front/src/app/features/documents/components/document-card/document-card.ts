@@ -22,7 +22,8 @@ export class DocumentCardComponent {
   @Output() detail = new EventEmitter<DocumentResponse>()
   @Output() share = new EventEmitter<DocumentResponse>()
   @Output() print = new EventEmitter<DocumentResponse>()
-  
+  @Output() preview = new EventEmitter<DocumentResponse>()
+
   onEdit(): void {
     this.edit.emit(this.document)
   }
@@ -48,5 +49,9 @@ export class DocumentCardComponent {
     console.log("Print document:", this.document.title)
     this.print.emit(this.document)
   }
-  
+
+  onPreview(): void {
+    this.preview.emit(this.document)
+  }
+
 }

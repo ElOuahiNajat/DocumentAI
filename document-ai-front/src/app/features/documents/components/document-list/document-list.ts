@@ -20,6 +20,7 @@ import { DocumentViewDialog } from '../document-view-dialog/document-view-dialog
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import {DocumentPreviewComponent} from '../document-preview-dialog/document-preview-dialog';
 
 @Component({
   selector: "app-document-list",
@@ -389,4 +390,14 @@ export class DocumentListComponent implements OnInit, OnDestroy {
       width: '600px'
     });
   }
+
+  onPreviewDocument(document: DocumentResponse): void {
+    this.dialog.open(DocumentPreviewComponent, {
+      data: { documentId: document.id },
+      width: '80%',
+      height: '90%',
+    });
+  }
+
+
 }

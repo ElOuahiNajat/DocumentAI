@@ -86,4 +86,10 @@ export class DocumentService {
   addFeedback(id: string, feedback: FeedbackRequest): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/${id}/feedback`, feedback);
   }
+
+  getPreviewDocument(documentId: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${documentId}/preview`, {
+      responseType: 'blob'
+    });
+  }
 }

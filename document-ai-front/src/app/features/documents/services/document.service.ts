@@ -5,6 +5,8 @@ import type { DocumentResponse } from "../models/DocumentResponse"
 import {PaginatedListResponse} from "../../../shared/components/PaginatedListResponse";
 import {environment} from "../../../../environments/environment";
 import {UpdateDocumentRequest} from '../models/UpdateDocumentRequest';
+import { FeedbackResponse } from '../models/FeedbackResponse';
+import { FeedbackRequest } from '../models/FeedbackRequest';
 
 @Injectable({
   providedIn: "root",
@@ -77,4 +79,11 @@ export class DocumentService {
     })
   }
 
+  getDocumentById(id: string): Observable<DocumentResponse> {
+    return this.http.get<DocumentResponse>(`${this.apiUrl}/${id}`);
+  }
+
+  addFeedback(id: string, feedback: FeedbackRequest): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/feedback`, feedback);
+  }
 }

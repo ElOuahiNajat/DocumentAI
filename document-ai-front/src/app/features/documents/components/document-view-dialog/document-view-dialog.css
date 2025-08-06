@@ -1,0 +1,11 @@
+.text-warning {
+  color: #ffc107 !important; /* jaune étoile Material */
+}
+
+.text-muted {
+  color: #bdbdbd !important; /* gris clair */
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}

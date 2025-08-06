@@ -1,3 +1,5 @@
+import { FeedbackResponse } from './FeedbackResponse';
+
 export interface DocumentResponse {
   id: string
   title: string
@@ -7,4 +9,5 @@ export interface DocumentResponse {
   updatedAt: string
   fileType: string
   fileSize: number
+  feedbacks?: FeedbackResponse[];
 }

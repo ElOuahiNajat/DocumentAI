@@ -1,5 +1,6 @@
 package fr.norsys.documentai.users.entities;
 
+import fr.norsys.documentai.users.enums.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,7 @@ public class User {
     @Column(nullable = false, length = 255)
     private String password;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    private String role;
+    private Role role;
 }

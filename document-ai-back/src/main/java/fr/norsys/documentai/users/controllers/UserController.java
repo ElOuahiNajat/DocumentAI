@@ -7,6 +7,7 @@ import fr.norsys.documentai.users.dtos.UpdateUserRequest;
 import fr.norsys.documentai.users.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
@@ -37,10 +38,9 @@ public class UserController implements MethodArgumentNotValidExceptionHandler {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createUser(@Valid @RequestBody CreateUserRequest createUserRequest) {
-        userService.createUser(createUserRequest);
-
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> createUser(@RequestBody @Valid CreateUserRequest request) {
+        userService.createUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/export/csv")

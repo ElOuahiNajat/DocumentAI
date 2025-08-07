@@ -22,7 +22,13 @@ public class UserService {
         List<User> users = userRepository.findAll();
 
         return users.stream()
-                .map((user) -> new UserResponse(user.getId(), user.getEmail()))
+                .map((user) -> new UserResponse(
+                    user.getId(),
+                    user.getFirstName(),
+                    user.getLastName(),
+                    user.getEmail(),
+                    user.getRole()
+                ))
                 .toList();
     }
 

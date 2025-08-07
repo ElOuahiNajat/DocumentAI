@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.ByteArrayInputStream;
 import java.io.OutputStreamWriter;
@@ -43,10 +44,18 @@ public class UserService {
                 .toList();
     }
 
-    public void createUser(CreateUserRequest createUserRequest) {
-        throw new UserAlreadyExistException(messageSource.getMessage("user.already.exists.error", null, Locale.getDefault()));
-    }
+    private final PasswordEncoder passwordEncoder;
 
+    public void createUser(CreateUserRequest request) {
+        User user = new User();
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRole(request.role());
+
+        userRepository.save(user);
+    }
     public ByteArrayInputStream exportUsersToCSV() {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
             OutputStreamWriter osWriter = new OutputStreamWriter(out, StandardCharsets.UTF_8);

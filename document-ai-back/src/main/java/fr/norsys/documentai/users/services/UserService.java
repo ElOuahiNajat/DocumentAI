@@ -2,8 +2,10 @@ package fr.norsys.documentai.users.services;
 
 import fr.norsys.documentai.users.dtos.CreateUserRequest;
 import fr.norsys.documentai.users.dtos.UserResponse;
+import fr.norsys.documentai.users.dtos.UpdateUserRequest;
 import fr.norsys.documentai.users.entities.User;
 import fr.norsys.documentai.users.exceptions.UserAlreadyExistException;
+import fr.norsys.documentai.users.exceptions.UserNotFoundException;
 import fr.norsys.documentai.users.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -16,6 +18,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import org.springframework.data.domain.Sort;
 import java.io.ByteArrayOutputStream;
 import org.springframework.data.domain.Page;
@@ -30,7 +33,13 @@ public class UserService {
         List<User> users = userRepository.findAll();
 
         return users.stream()
-                .map((user) -> new UserResponse(user.getId(), user.getEmail()))
+                .map((user) -> new UserResponse(
+                    user.getId(),
+                    user.getFirstName(),
+                    user.getLastName(),
+                    user.getEmail(),
+                    user.getRole()
+                ))
                 .toList();
     }
 
@@ -89,4 +98,24 @@ public class UserService {
         return str;
     }
 
+
+    public UserResponse updateUser(UUID id, UpdateUserRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("user.not.found.error", null, Locale.getDefault())));
+
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        user.setEmail(request.email());
+        user.setRole(request.role());
+
+        User updatedUser = userRepository.save(user);
+
+        return new UserResponse(
+                updatedUser.getId(),
+                updatedUser.getFirstName(),
+                updatedUser.getLastName(),
+                updatedUser.getEmail(),
+                updatedUser.getRole()
+        );
+    }
 }

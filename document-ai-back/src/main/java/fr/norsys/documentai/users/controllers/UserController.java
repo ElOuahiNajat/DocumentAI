@@ -3,6 +3,7 @@ package fr.norsys.documentai.users.controllers;
 import fr.norsys.documentai.exceptions.MethodArgumentNotValidExceptionHandler;
 import fr.norsys.documentai.users.dtos.CreateUserRequest;
 import fr.norsys.documentai.users.dtos.UserResponse;
+import fr.norsys.documentai.users.dtos.UpdateUserRequest;
 import fr.norsys.documentai.users.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +15,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
@@ -52,4 +56,13 @@ public class UserController implements MethodArgumentNotValidExceptionHandler {
                 .body(resource);
     }
 
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateUserRequest request
+    ) {
+        UserResponse updatedUser = userService.updateUser(id, request);
+        return ResponseEntity.ok(updatedUser);
+    }
 }

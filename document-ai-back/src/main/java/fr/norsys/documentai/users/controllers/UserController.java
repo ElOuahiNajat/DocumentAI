@@ -11,6 +11,9 @@ import org.springframework.http.HttpStatus;
 
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,10 +34,13 @@ public class UserController implements MethodArgumentNotValidExceptionHandler {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<UserResponse>> getUsers() {
-        List<UserResponse> users = userService.getUsers();
-
-        return ResponseEntity.ok().body(users);
+    public ResponseEntity<Page<UserResponse>> getUsers(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "5") int size
+    ) {
+        Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+        Page<UserResponse> usersPage = userService.getUsers(pageable);
+        return ResponseEntity.ok().body(usersPage);
     }
 
     @PostMapping

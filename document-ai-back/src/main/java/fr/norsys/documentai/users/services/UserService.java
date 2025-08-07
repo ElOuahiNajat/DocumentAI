@@ -12,6 +12,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.io.ByteArrayInputStream;
 import java.io.OutputStreamWriter;
@@ -29,22 +31,18 @@ import org.springframework.data.domain.Page;
 public class UserService {
     private final UserRepository userRepository;
     private final MessageSource messageSource;
-
-    public List<UserResponse> getUsers() {
-        List<User> users = userRepository.findAll();
-
-        return users.stream()
-                .map((user) -> new UserResponse(
-                    user.getId(),
-                    user.getFirstName(),
-                    user.getLastName(),
-                    user.getEmail(),
-                    user.getRole()
-                ))
-                .toList();
-    }
-
     private final PasswordEncoder passwordEncoder;
+
+    public Page<UserResponse> getUsers(Pageable pageable) {
+        return userRepository.findAll(pageable)
+        .map(user -> new UserResponse(
+            user.getId(),
+            user.getFirstName(),
+            user.getLastName(),
+            user.getEmail(),
+            user.getRole()
+        ));
+    }
 
     public void createUser(CreateUserRequest request) {
         User user = new User();

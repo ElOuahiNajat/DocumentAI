@@ -1,0 +1,41 @@
+<h2 class="text-2xl font-semibold mb-4 text-gray-800 px-4">Add user </h2>
+
+<mat-dialog-content class="p-4 space-y-4" style="overflow: visible; max-height: none; width: 500px; max-width: 90vw;">
+  <form (ngSubmit)="onSubmit()" class="space-y-4 w-full">
+    <mat-form-field appearance="fill" class="w-full">
+      <mat-label>First Name</mat-label>
+      <input matInput [(ngModel)]="firstName" name="firstName" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="w-full">
+      <mat-label>Last Name</mat-label>
+      <input matInput [(ngModel)]="lastName" name="lastName" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="w-full">
+      <mat-label>Email</mat-label>
+      <input matInput [(ngModel)]="email" name="email" required type="email" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="w-full">
+      <mat-label>Password</mat-label>
+      <input matInput [(ngModel)]="password" name="password" required type="password" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="w-full">
+      <mat-label>Role</mat-label>
+      <mat-select [(ngModel)]="role" name="role" required>
+        <mat-option *ngFor="let r of roles" [value]="r">{{r}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="flex justify-end gap-3 pt-4">
+      <button mat-button type="button" class="!text-gray-700 !bg-gray-100 hover:!bg-gray-200" (click)="onCancel()">
+        Cancel
+      </button>
+      <button mat-raised-button color="primary" type="submit" class="!bg-blue-600 !text-white hover:!bg-blue-700">
+        Add
+      </button>
+    </div>
+  </form>
+</mat-dialog-content>

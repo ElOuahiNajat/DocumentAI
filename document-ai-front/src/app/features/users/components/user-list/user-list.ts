@@ -6,11 +6,15 @@ import { MatPaginator } from '@angular/material/paginator';
 import { UserService } from '../../services/user-service';
 import { UserResponse } from '../../models/user-response';
 import { PagedResponse } from '../../models/paged-response';
+import { MatDialog } from '@angular/material/dialog';
+import { AddUserDialog } from '../add-user-dialog/add-user-dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatPaginatorModule],
+  imports: [CommonModule, FormsModule, MatPaginatorModule, MatButtonModule, MatDialogModule],
   templateUrl: './user-list.html',
   styleUrls: ['./user-list.css']
 })
@@ -22,7 +26,7 @@ export class UserList implements OnInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService, private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.getUsers();
@@ -53,4 +57,15 @@ export class UserList implements OnInit {
   onDelete(user: UserResponse): void {
     console.log('Supprimer utilisateur:', user);
   }
+
+  openAddUserDialog(): void {
+  const dialogRef = this.dialog.open(AddUserDialog);
+
+  dialogRef.afterClosed().subscribe(result => {
+    if (result === 'success') {
+      this.getUsers();
+    }
+  });
+}
+
 }

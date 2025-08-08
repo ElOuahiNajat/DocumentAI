@@ -21,4 +21,10 @@ export class UserService {
    createUser(request: CreateUserRequest): Observable<void> {
     return this.http.post<void>(this.apiUrl, request);
    }
+
+   exportUsersToCSV(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/export/csv`, {
+      responseType: 'blob'
+  });
+}
 }

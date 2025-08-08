@@ -7,4 +7,5 @@ export const routes: Routes = [
     loadComponent: () => import("./pages/document-page/document-page").then((m) => m.DocumentPage),
     title: "Document List",
   }
+  
 ]

@@ -45,6 +45,7 @@ export class HeaderComponent {
     const translations: { [key: string]: string } = {
       home: "Home",
       documents: "Documents",
+      users: "Users",
       profile: "Profile",
       settings: "Settings",
       logout: "Logout",

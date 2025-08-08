@@ -125,4 +125,8 @@ public class UserService {
                 updatedUser.getRole()
         );
     }
+
+    public void deleteUser(UUID id) {
+        userRepository.deleteById(id);
+    }
 }

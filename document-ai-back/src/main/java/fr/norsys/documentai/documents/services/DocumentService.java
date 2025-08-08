@@ -145,8 +145,15 @@ public class DocumentService {
         documentRepository.save(document);
     }
 
+    @Transactional
     public void deleteDocument(UUID id) {
-        documentRepository.deleteById(id);
+        Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new DocumentNotFoundException(
+                        messageSource.getMessage("document.not.found.error", null, Locale.getDefault())
+                ));
+
+        feedbackRepository.deleteByDocumentId(id);
+        documentRepository.delete(document);
     }
 
     public DownloadedDocumentDTO downloadDocument(UUID id) {

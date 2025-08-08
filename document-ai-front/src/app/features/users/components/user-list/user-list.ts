@@ -10,6 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddUserDialog } from '../add-user-dialog/add-user-dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-user-list',
@@ -26,7 +27,7 @@ export class UserList implements OnInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private userService: UserService, private dialog: MatDialog) {}
+  constructor(private userService: UserService, private dialog: MatDialog, private snackBar: MatSnackBar) {}
 
   ngOnInit(): void {
     this.getUsers();
@@ -64,6 +65,35 @@ export class UserList implements OnInit {
   dialogRef.afterClosed().subscribe(result => {
     if (result === 'success') {
       this.getUsers();
+    }
+  });
+}
+
+exportUsersToCSV(): void {
+  this.userService.exportUsersToCSV().subscribe({
+    next: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'users.csv';
+      link.click();
+      window.URL.revokeObjectURL(url);
+
+      this.snackBar.open('CSV export successful!', 'Close', {
+        duration: 3000,
+        horizontalPosition: 'center',
+        verticalPosition: 'top',
+        panelClass: ['snackbar-success']
+      });
+    },
+    error: (error) => {
+      console.error('Error during CSV export:', error);
+      this.snackBar.open('Failed to export users. Please try again.', 'Close', {
+        duration: 5000,
+        horizontalPosition: 'center',
+        verticalPosition: 'top',
+        panelClass: ['snackbar-error']
+      });
     }
   });
 }

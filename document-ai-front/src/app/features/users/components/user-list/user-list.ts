@@ -11,6 +11,7 @@ import { AddUserDialog } from '../add-user-dialog/add-user-dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import {EditUserDialog} from '../edit-user-dialog/edit-user-dialog';
 
 @Component({
   selector: 'app-user-list',
@@ -60,6 +61,19 @@ export class UserList implements OnInit {
     }
   });
 }
+  onEdit(user: UserResponse): void {
+    const dialogRef = this.dialog.open(EditUserDialog, {
+      width: '400px',
+      data: { ...user }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'success') {
+        this.getUsers();
+      }
+    });
+  }
+
 
 
 exportUsersToCSV(): void {

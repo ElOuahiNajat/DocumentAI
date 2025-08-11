@@ -44,6 +44,16 @@
           <td class="py-3 px-6">{{ user.role }}</td>
           <td class="py-3 px-6 flex space-x-2">
             <div class="relative group">
+              <button
+                class="bg-blue-400 hover:bg-blue-500 text-white p-2 rounded"
+                aria-label="Modifier"
+                (click)="onEdit(user)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M15.232 5.232l3.536 3.536M9 13l6.536-6.536a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.414.586H7v-3a2 2 0 01.586-1.414z" />
+                </svg>
+              </button>
               <span class="absolute left-1/2 -translate-x-1/2 -top-8
                           bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100
                           transition-opacity duration-300 pointer-events-none">
@@ -62,6 +72,7 @@
                         d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
+
               <span class="absolute left-1/2 -translate-x-1/2 -top-8
                           bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100
                           transition-opacity duration-300 pointer-events-none">

@@ -7,7 +7,7 @@
         <span class="material-icons text-lg"
               [ngClass]="{
                 'text-yellow-500': document.averageRating >= star,
-                'text-gray-400': document.averageRating < star
+                'text-yellow-400': document.averageRating < star
               }">
           {{ document.averageRating >= star ? 'star' :
             (document.averageRating >= star - 0.5 ? 'star_half' : 'star_border') }}

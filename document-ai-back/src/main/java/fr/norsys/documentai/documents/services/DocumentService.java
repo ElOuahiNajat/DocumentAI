@@ -63,7 +63,6 @@ public class DocumentService {
     private final FileStorageService fileStorageService;
     private final FeedbackRepository feedbackRepository;
 
-
     public Page<DocumentResponse> getDocuments(
             Pageable pageable,
             String searchTerm,
@@ -109,7 +108,11 @@ public class DocumentService {
         Specification<Document> finalSpec = Specification.allOf(documentSpecs);
 
         return documentRepository.findAll(finalSpec, pageable)
-                .map(doc -> new DocumentResponse(doc, new ArrayList<>()));
+            .map(doc -> {
+                Double avgNote = feedbackRepository.getAverageNoteByDocumentId(doc.getId());
+                if (avgNote == null) avgNote = 0.0;
+                return new DocumentResponse(doc, new ArrayList<>(), avgNote);
+            });
 
 
     }
@@ -266,7 +269,10 @@ public class DocumentService {
                 .map(f -> new FeedbackResponse(f.getContent(), f.getNote(), f.getCreatedAt()))
                 .toList();
 
-        return new DocumentResponse(document, feedbacks);
+        Double avgNote = feedbackRepository.getAverageNoteByDocumentId(id);
+        if (avgNote == null) avgNote = 0.0;
+
+        return new DocumentResponse(document, feedbacks, avgNote);
     }
 }
 

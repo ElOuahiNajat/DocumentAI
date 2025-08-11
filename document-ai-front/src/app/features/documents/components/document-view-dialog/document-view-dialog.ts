@@ -76,6 +76,8 @@ export class DocumentViewDialog implements OnInit {
           ...f,
           createdAt: this.convertToDate(f.createdAt)
         }));
+
+        this.document.averageRating = data.averageRating;
       },
       error: (err) => console.error(err)
     });

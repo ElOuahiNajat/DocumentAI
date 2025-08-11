@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { UserResponse } from '../models/user-response';
-import { PagedResponse } from '../models/paged-response'; 
+import { PagedResponse } from '../models/paged-response';
 import type { CreateUserRequest } from '../models/CreateUserRequest';
 
 
@@ -22,7 +22,12 @@ export class UserService {
     return this.http.post<void>(this.apiUrl, request);
    }
 
-   exportUsersToCSV(): Observable<Blob> {
+    deleteUser(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+
+  exportUsersToCSV(): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/export/csv`, {
       responseType: 'blob'
   });

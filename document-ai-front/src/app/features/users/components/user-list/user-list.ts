@@ -51,14 +51,6 @@ export class UserList implements OnInit {
     this.getUsers();
   }
 
-  onEdit(user: UserResponse): void {
-    console.log('Modifier utilisateur:', user);
-  }
-
-  onDelete(user: UserResponse): void {
-    console.log('Supprimer utilisateur:', user);
-  }
-
   openAddUserDialog(): void {
   const dialogRef = this.dialog.open(AddUserDialog);
 
@@ -68,6 +60,7 @@ export class UserList implements OnInit {
     }
   });
 }
+
 
 exportUsersToCSV(): void {
   this.userService.exportUsersToCSV().subscribe({
@@ -97,5 +90,31 @@ exportUsersToCSV(): void {
     }
   });
 }
+
+  onDelete(user: UserResponse): void {
+    if (confirm(`Are you sure you want to delete ${user.firstName} ${user.lastName}?`)) {
+      this.userService.deleteUser(user.id).subscribe({
+        next: () => {
+          this.snackBar.open('User deleted successfully!', 'Close', {
+            duration: 3000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['snackbar-success']
+          });
+          this.getUsers();
+        },
+        error: (err) => {
+          console.error('Error deleting user', err);
+          this.snackBar.open('Failed to delete user.', 'Close', {
+            duration: 5000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+            panelClass: ['snackbar-error']
+          });
+        }
+      });
+    }
+  }
+
 
 }

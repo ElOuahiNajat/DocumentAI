@@ -27,6 +27,10 @@ export class UserService {
   }
 
 
+  updateUser(id: string, request: any): Observable<UserResponse> {
+    return this.http.put<UserResponse>(`${this.apiUrl}/${id}`, request);
+  }
+
   exportUsersToCSV(): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/export/csv`, {
       responseType: 'blob'

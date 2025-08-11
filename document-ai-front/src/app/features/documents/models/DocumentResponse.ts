@@ -10,4 +10,5 @@ export interface DocumentResponse {
   fileType: string
   fileSize: number
   feedbacks?: FeedbackResponse[];
+  averageRating: number;
 }

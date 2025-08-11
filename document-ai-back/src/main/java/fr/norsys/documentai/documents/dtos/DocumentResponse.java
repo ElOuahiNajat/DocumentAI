@@ -15,9 +15,10 @@ public record DocumentResponse(
         LocalDateTime updatedAt,
         String fileType,
         Integer fileSize,
-        List<FeedbackResponse> feedbacks
+        List<FeedbackResponse> feedbacks,
+        Double averageRating 
 ) {
-    public DocumentResponse(Document doc, List<FeedbackResponse> feedbacks) {
+    public DocumentResponse(Document doc, List<FeedbackResponse> feedbacks, Double averageRating) {
         this(
                 doc.getId(),
                 doc.getTitle(),
@@ -27,7 +28,8 @@ public record DocumentResponse(
                 doc.getUpdatedAt(),
                 doc.getFileType(),
                 doc.getFileSize(),
-                feedbacks
+                feedbacks,
+                averageRating
         );
     }
 }

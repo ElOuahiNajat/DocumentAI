@@ -17,4 +17,7 @@ public interface FeedbackRepository extends JpaRepository<Feedback, UUID> {
     @Transactional
     @Query("DELETE FROM Feedback f WHERE f.document.id = :documentId")
     void deleteByDocumentId(@Param("documentId") UUID documentId);
+
+    @Query("SELECT AVG(f.note) FROM Feedback f WHERE f.document.id = :documentId")
+    Double getAverageNoteByDocumentId(@Param("documentId") UUID documentId);
 }

@@ -1,11 +1,6 @@
 package fr.norsys.documentai.documents.services;
 
-import fr.norsys.documentai.documents.dtos.CreateDocumentRequest;
-import fr.norsys.documentai.documents.dtos.DocumentResponse;
-import fr.norsys.documentai.documents.dtos.UpdateDocumentRequest;
-import fr.norsys.documentai.documents.dtos.DownloadedDocumentDTO;
-import fr.norsys.documentai.documents.dtos.FeedbackRequest;
-import fr.norsys.documentai.documents.dtos.FeedbackResponse;
+import fr.norsys.documentai.documents.dtos.*;
 import fr.norsys.documentai.documents.exceptions.ExportCsvException;
 import fr.norsys.documentai.documents.services.FileStorageService;
 import fr.norsys.documentai.documents.entities.Document;
@@ -62,6 +57,7 @@ public class DocumentService {
     private final MessageSource messageSource;
     private final FileStorageService fileStorageService;
     private final FeedbackRepository feedbackRepository;
+    private final OllamaService ollamaService;
 
     public Page<DocumentResponse> getDocuments(
             Pageable pageable,
@@ -274,6 +270,12 @@ public class DocumentService {
 
         return new DocumentResponse(document, feedbacks, avgNote);
     }
+    public DocumentInfoDto describeDocument(MultipartFile file) throws Exception {
+        return ollamaService.describeDocument(file);
+    }
+
+
+
 }
 
 

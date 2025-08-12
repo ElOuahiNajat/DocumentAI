@@ -7,6 +7,7 @@ import {environment} from "../../../../environments/environment";
 import {UpdateDocumentRequest} from '../models/UpdateDocumentRequest';
 import { FeedbackResponse } from '../models/FeedbackResponse';
 import { FeedbackRequest } from '../models/FeedbackRequest';
+import {OllamaResponse} from '../models/OllamaResponse';
 
 @Injectable({
   providedIn: "root",
@@ -92,4 +93,10 @@ export class DocumentService {
       responseType: 'blob'
     });
   }
+  describeDocument(file:File):Observable<OllamaResponse>{
+    const formData=new FormData();
+    formData.append('file',file);
+    return this.http.post<OllamaResponse>(`${this.apiUrl}/describe`, formData);
+  }
+
 }

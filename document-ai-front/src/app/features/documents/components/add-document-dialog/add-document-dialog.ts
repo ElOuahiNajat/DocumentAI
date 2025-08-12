@@ -6,6 +6,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import {OllamaResponse} from '../../models/OllamaResponse';
+import {DocumentService} from '../../services/document.service';
 @Component({
   selector: 'app-add-document-dialog',
   standalone: true,
@@ -17,16 +20,19 @@ import { CommonModule } from '@angular/common';
     MatInputModule,
     MatButtonModule,
     MatDialogModule,
-    CommonModule
+    CommonModule,
+    MatIconModule
   ]
 })
 export class AddDocumentDialog {
   documentForm: FormGroup;
   selectedFileName: string = '';
+  isGenerating:boolean=false;
 
   constructor(
     private fb: FormBuilder,
-    private dialogRef: MatDialogRef<AddDocumentDialog>
+    private dialogRef: MatDialogRef<AddDocumentDialog>,
+    private documentService:DocumentService
   ) {
     this.documentForm = this.fb.group({
       title: ['',Validators.required],
@@ -39,7 +45,7 @@ export class AddDocumentDialog {
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
-      this.selectedFileName = file.name; 
+      this.selectedFileName = file.name;
       this.documentForm.patchValue({ file });
       this.documentForm.get('file')?.markAsTouched();
     }
@@ -48,10 +54,35 @@ export class AddDocumentDialog {
   onCancel() {
     this.dialogRef.close();
   }
+  generateDescription() {
+    const file: File = this.documentForm.value.file;
+    if (!file) {
+      this.documentForm.get('file')?.markAsTouched();
+      return;
+    }
+
+    this.isGenerating = true;
+
+    this.documentService.describeDocument(file).subscribe({
+      next: (res: OllamaResponse) => {
+        this.documentForm.patchValue({
+          title: res.title,
+          author: res.author,
+          description: res.description
+        });
+        this.isGenerating = false;
+      },
+      error: (err) => {
+        console.error('Error generating description', err);
+        this.isGenerating = false;
+      }
+    });
+  }
+
 
   onSubmit() {
     if (this.documentForm.invalid) {
-      this.documentForm.markAllAsTouched(); 
+      this.documentForm.markAllAsTouched();
       return;
     }
 

@@ -1,10 +1,6 @@
 package fr.norsys.documentai.documents.controllers;
 
-import fr.norsys.documentai.documents.dtos.CreateDocumentRequest;
-import fr.norsys.documentai.documents.dtos.DocumentResponse;
-import fr.norsys.documentai.documents.dtos.UpdateDocumentRequest;
-import fr.norsys.documentai.documents.dtos.DownloadedDocumentDTO;
-import fr.norsys.documentai.documents.dtos.FeedbackRequest;
+import fr.norsys.documentai.documents.dtos.*;
 import fr.norsys.documentai.documents.enums.ComparatorOperator;
 import fr.norsys.documentai.documents.services.DocumentService;
 import fr.norsys.documentai.documents.entities.Document;
@@ -143,4 +139,10 @@ public class DocumentController implements MethodArgumentNotValidExceptionHandle
         DocumentResponse response = documentService.getDocumentById(id);
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/describe")
+    public ResponseEntity<DocumentInfoDto> describeDocument(@RequestParam MultipartFile file) throws Exception {
+        return ResponseEntity.ok(documentService.describeDocument(file));
+    }
+
+
 }

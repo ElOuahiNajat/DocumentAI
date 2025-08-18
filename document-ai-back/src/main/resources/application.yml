@@ -24,3 +24,7 @@ server:
 
 front:
   url: ${FRONT_URL}
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}

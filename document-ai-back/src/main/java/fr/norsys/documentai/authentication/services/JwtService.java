@@ -1,5 +1,6 @@
 package fr.norsys.documentai.authentication.services;
 
+import fr.norsys.documentai.users.entities.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
+import java.util.List;
+import java.util.Base64;
 import java.util.function.Function;
 
 @Service
@@ -22,13 +25,14 @@ public class JwtService {
     private long jwtExpiration;
 
     private Key getSignInKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
+        byte[] keyBytes = Base64.getDecoder().decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(Map<String, Object> extraClaims, String username) {
+    public String generateToken(User user) {
         return Jwts.builder()
-                .setClaims(extraClaims)
-                .setSubject(username)
+                .setSubject(user.getEmail())
+                .claim("roles", List.of("ROLE_" + user.getRole().name()))
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)

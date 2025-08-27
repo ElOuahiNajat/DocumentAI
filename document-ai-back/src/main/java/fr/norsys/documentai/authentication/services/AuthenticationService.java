@@ -31,7 +31,7 @@ public class AuthenticationService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("user.not.found.error", null, Locale.getDefault())));
 
-        String accessToken = jwtService.generateToken(new HashMap<>(), user.getEmail());
+        String accessToken = jwtService.generateToken(user);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)

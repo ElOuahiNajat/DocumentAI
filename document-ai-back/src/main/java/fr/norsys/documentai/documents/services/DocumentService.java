@@ -3,8 +3,10 @@ package fr.norsys.documentai.documents.services;
 import fr.norsys.documentai.documents.dtos.*;
 import fr.norsys.documentai.documents.exceptions.ExportCsvException;
 import fr.norsys.documentai.documents.services.FileStorageService;
+import fr.norsys.documentai.authentication.services.CurrentUserService;
 import fr.norsys.documentai.documents.entities.Document;
 import fr.norsys.documentai.documents.entities.Feedback;
+import fr.norsys.documentai.users.entities.User;
 import fr.norsys.documentai.documents.entitySpecs.*;
 import fr.norsys.documentai.documents.enums.ComparatorOperator;
 import fr.norsys.documentai.documents.exceptions.DocumentNotFoundException;
@@ -58,6 +60,7 @@ public class DocumentService {
     private final FileStorageService fileStorageService;
     private final FeedbackRepository feedbackRepository;
     private final OllamaService ollamaService;
+    private final CurrentUserService currentUserService;
 
     public Page<DocumentResponse> getDocuments(
             Pageable pageable,
@@ -125,12 +128,15 @@ public class DocumentService {
 
 
     }
+    
     public void saveDocument(@Valid CreateDocumentRequest createDocumentRequest) throws IOException {
         MultipartFile file = createDocumentRequest.file();
         String fileType = file.getContentType();
         int fileSize = fileStorageService.getFileSizeByKo(file);
 
         String filePath = fileStorageService.store(file);
+
+        User currentUser = currentUserService.getCurrentUser();
 
         Document document = Document.builder()
                 .title(createDocumentRequest.title())
@@ -139,6 +145,7 @@ public class DocumentService {
                 .fileType(fileType)
                 .fileSize(fileSize)
                 .filePath(filePath)
+                .owner(currentUser)
                 .build();
 
         documentRepository.save(document);

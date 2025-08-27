@@ -3,6 +3,7 @@ package fr.norsys.documentai.documents.controllers;
 import fr.norsys.documentai.documents.dtos.*;
 import fr.norsys.documentai.documents.enums.ComparatorOperator;
 import fr.norsys.documentai.documents.services.DocumentService;
+import fr.norsys.documentai.authentication.services.CurrentUserService;
 import fr.norsys.documentai.documents.entities.Document;
 import fr.norsys.documentai.exceptions.MethodArgumentNotValidExceptionHandler;
 import jakarta.validation.Valid;
@@ -18,6 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.nio.file.Paths;
 import java.nio.file.Files;
@@ -30,8 +34,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/documents")
 @RequiredArgsConstructor
+@Configuration
+@EnableMethodSecurity
 public class DocumentController implements MethodArgumentNotValidExceptionHandler {
     private final DocumentService documentService;
+    private final CurrentUserService currentUserService;
 
     @GetMapping
     public Page<DocumentResponse> listDocuments(
@@ -60,6 +67,7 @@ public class DocumentController implements MethodArgumentNotValidExceptionHandle
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN') or @currentUserService.isOwnerOfDocument(@currentUserService.getCurrentUser(), #id)")
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateDocument(
             @PathVariable UUID id,
@@ -84,6 +92,7 @@ public class DocumentController implements MethodArgumentNotValidExceptionHandle
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @PreAuthorize("hasRole('ADMIN') or @currentUserService.isOwnerOfDocument(@currentUserService.getCurrentUser(), #id)")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDocument(@PathVariable UUID id) {
         documentService.deleteDocument(id);
@@ -139,6 +148,7 @@ public class DocumentController implements MethodArgumentNotValidExceptionHandle
         DocumentResponse response = documentService.getDocumentById(id);
         return ResponseEntity.ok(response);
     }
+
     @PostMapping("/describe")
     public ResponseEntity<DocumentInfoDto> describeDocument(@RequestParam MultipartFile file) throws Exception {
         return ResponseEntity.ok(documentService.describeDocument(file));

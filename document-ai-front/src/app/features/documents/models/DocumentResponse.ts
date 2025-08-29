@@ -11,4 +11,5 @@ export interface DocumentResponse {
   fileSize: number
   feedbacks?: FeedbackResponse[];
   averageRating: number;
+  ownerEmail: string;
 }

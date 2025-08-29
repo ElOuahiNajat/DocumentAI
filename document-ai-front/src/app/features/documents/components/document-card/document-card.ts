@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from "@angular/core"
+import { Component, Input, Output, EventEmitter, OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import type { DocumentResponse } from "../../models/DocumentResponse" // Adjusted path
 import { DocumentButtonComponent } from "../document-button/document-button" // Import the new component
@@ -6,6 +6,7 @@ import { MatCardModule } from "@angular/material/card" // Import MatCardModule
 import { MatButtonModule } from "@angular/material/button" // Import MatButtonModule
 import { MatIconModule } from "@angular/material/icon" // Import MatIconModule
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AuthService } from "../../../auth/services/auth.service";
 
 @Component({
   selector: "app-document-card",
@@ -14,7 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   templateUrl: "./document-card.html",
   styleUrls: ["./document-card.css"], // Changed back to .css
 })
-export class DocumentCardComponent {
+export class DocumentCardComponent implements OnInit {
   @Input({ required: true }) document!: DocumentResponse
   @Output() edit = new EventEmitter<DocumentResponse>()
   @Output() delete = new EventEmitter<DocumentResponse>()
@@ -23,6 +24,20 @@ export class DocumentCardComponent {
   @Output() share = new EventEmitter<DocumentResponse>()
   @Output() print = new EventEmitter<DocumentResponse>()
   @Output() preview = new EventEmitter<DocumentResponse>()
+
+  isOwner = false;
+
+  constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
+    const currentUserEmail = this.authService.getCurrentUserEmail();
+    const currentUserRole = this.authService.getUserRole();
+    console.log("🔎 Current User Email:", currentUserEmail);
+    console.log("📄 Document Owner Email:", this.document.ownerEmail);
+    console.log("🎭 Current User Role:", currentUserRole);
+    this.isOwner = currentUserEmail === this.document.ownerEmail ||
+    currentUserRole === "ADMIN";
+  }
 
   onEdit(): void {
     this.edit.emit(this.document)

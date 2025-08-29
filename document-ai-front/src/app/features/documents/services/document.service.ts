@@ -5,7 +5,6 @@ import type { DocumentResponse } from "../models/DocumentResponse"
 import {PaginatedListResponse} from "../../../shared/components/PaginatedListResponse";
 import {environment} from "../../../../environments/environment";
 import {UpdateDocumentRequest} from '../models/UpdateDocumentRequest';
-import { FeedbackResponse } from '../models/FeedbackResponse';
 import { FeedbackRequest } from '../models/FeedbackRequest';
 import {OllamaResponse} from '../models/OllamaResponse';
 

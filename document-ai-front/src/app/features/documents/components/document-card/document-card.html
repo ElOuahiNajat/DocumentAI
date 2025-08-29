@@ -16,11 +16,42 @@
     </div>
   </mat-card-content>
   <mat-card-actions class="p-4 border-t border-gray-200 flex justify-end space-x-2">
-    <app-document-button icon="edit" ariaLabel="Edit document" (buttonClick)="onEdit()"></app-document-button>
-    <app-document-button icon="delete" ariaLabel="Delete document" iconClass="text-red-500" (buttonClick)="onDelete()"></app-document-button>
-    <app-document-button icon="download" ariaLabel="Download document" iconClass="text-green-500" (buttonClick)="onDownload()"></app-document-button>
-    <app-document-button icon="info" ariaLabel="View details" (buttonClick)="onDetail()"></app-document-button>
-    <app-document-button icon="visibility" ariaLabel="Preview document" iconClass="text-blue-500" (buttonClick)="onPreview()">
-    </app-document-button>
-  </mat-card-actions>
+  <!-- Edit visible si propriétaire -->
+  <app-document-button
+    *ngIf="isOwner"
+    icon="edit"
+    ariaLabel="Edit document"
+    (buttonClick)="onEdit()">
+  </app-document-button>
+
+  <!-- Delete visible si propriétaire -->
+  <app-document-button
+    *ngIf="isOwner"
+    icon="delete"
+    ariaLabel="Delete document"
+    iconClass="text-red-500"
+    (buttonClick)="onDelete()">
+  </app-document-button>
+
+  <!-- Boutons toujours visibles -->
+  <app-document-button
+    icon="download"
+    ariaLabel="Download document"
+    iconClass="text-green-500"
+    (buttonClick)="onDownload()">
+  </app-document-button>
+
+  <app-document-button
+    icon="info"
+    ariaLabel="View details"
+    (buttonClick)="onDetail()">
+  </app-document-button>
+
+  <app-document-button
+    icon="visibility"
+    ariaLabel="Preview document"
+    iconClass="text-blue-500"
+    (buttonClick)="onPreview()">
+  </app-document-button>
+</mat-card-actions>
 </mat-card>

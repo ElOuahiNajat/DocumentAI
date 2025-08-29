@@ -50,6 +50,14 @@ export class AuthService {
     }
     return null
   }
+
+  getCurrentUserEmail(): string | null {
+    const user = this.getCurrentUser();
+    if (user && user.sub) {
+      return user.sub;
+    }
+    return null;
+  }
   getUserRole(): string | null {
     const user = this.getCurrentUser()
     if (user && user.role) {

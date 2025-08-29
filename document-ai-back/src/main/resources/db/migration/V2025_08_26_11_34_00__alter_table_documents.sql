@@ -1,6 +1,6 @@
 ALTER TABLE documents ADD COLUMN owner_id UUID;
 
-UPDATE documents SET owner_id = '2347c1c0-4568-4fdf-8fff-d9281b0f7068';
+UPDATE documents SET owner_id = '04e9ce1f-c15b-4a25-992b-96b03adaa2a0';
 
 ALTER TABLE documents ALTER COLUMN owner_id SET NOT NULL;
 

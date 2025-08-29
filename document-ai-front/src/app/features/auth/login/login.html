@@ -1,0 +1,98 @@
+<div class="login-container min-h-screen bg-gray-100 flex items-center justify-center p-4">
+  <mat-card class="login-card w-full max-w-md shadow-xl">
+    <mat-card-header class="text-center pb-8 pt-8">
+      <div class="flex flex-col items-center space-y-6">
+        <div class="logo-container w-20 h-20 rounded-full overflow-hidden flex items-center justify-center bg-white shadow-md">
+          <img src="assets/norsys_afrique.jpg" alt="Norsys Afrique Logo" class="w-full" />
+
+        </div>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content class="px-8 pb-8">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+
+        <!-- Email Field -->
+        <div class="space-y-4">
+          <mat-form-field appearance="outline" class="w-full custom-form-field">
+            <mat-icon matPrefix class="prefix-icon">email</mat-icon>
+            <input
+              matInput
+              type="email"
+              placeholder="Enter your email"
+              formControlName="email"
+              class="custom-input"
+            />
+            @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+              <mat-error class="custom-error">
+                <mat-icon class="error-icon">error</mat-icon>
+                {{ getEmailErrorMessage() }}
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <!-- Password Field -->
+        <div class="space-y-2">
+          <mat-form-field appearance="outline" class="w-full custom-form-field">
+            <mat-icon matPrefix class="prefix-icon">lock</mat-icon>
+            <input
+              matInput
+              [type]="hidePassword ? 'password' : 'text'"
+              placeholder="Enter your password"
+              formControlName="password"
+              class="custom-input"
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="suffix-button"
+            >
+              <mat-icon class="suffix-icon">
+                {{ hidePassword ? 'visibility_off' : 'visibility' }}
+              </mat-icon>
+            </button>
+            @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+              <mat-error class="custom-error">
+                <mat-icon class="error-icon">error</mat-icon>
+                {{ getPasswordErrorMessage() }}
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <!-- Error Message -->
+        @if (errorMessage) {
+          <div class="error-message bg-red-50 border-l-4 border-red-400 text-red-700 px-4 py-3 rounded-r-md text-sm">
+            <div class="flex items-center">
+              <mat-icon class="text-red-500 mr-2">error</mat-icon>
+              {{ errorMessage }}
+            </div>
+          </div>
+        }
+
+        <!-- Submit Button -->
+        <div class="pt-4">
+          <button
+            mat-raised-button
+            type="submit"
+            class="w-full custom-submit-button"
+            [disabled]="isLoading"
+          >
+            @if (isLoading) {
+              <span class="flex items-center justify-center">
+                <mat-spinner [diameter]="16" class="mr-2"></mat-spinner>
+                Signing in...
+              </span>
+            } @else {
+              <span>SIGN IN</span>
+            }
+          </button>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

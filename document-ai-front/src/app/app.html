@@ -1,3 +1,9 @@
-<layout-header></layout-header>
+@if (!isLoginPage) {
+  <layout-header></layout-header>
+}
+
 <router-outlet></router-outlet>
-<layout-footer></layout-footer>
+
+@if (!isLoginPage) {
+  <layout-footer></layout-footer>
+}

@@ -22,7 +22,9 @@
         class="text-gray-600 hover:text-gray-900 pb-2 transition-colors text-sm relative">
         {{ getTranslation('documents') }}
       </a>
+      <!-- ✅ Enhanced Users link visibility - only show for authenticated ADMIN users -->
       <a
+        *ngIf="isAuthenticated() && isAdmin()"
         mat-button
         routerLink="/users"
         routerLinkActive="active-link"
@@ -36,17 +38,30 @@
   <div class="flex items-center space-x-2">
     <!-- Profile Dropdown -->
     <div class="relative">
-      <button mat-icon-button (click)="toggleProfileMenu()" class="p-2 hover:bg-gray-100 rounded-md transition-colors flex items-center space-x-1" [attr.aria-label]="getTranslation('profile')" aria-haspopup="true" [attr.aria-expanded]="isProfileMenuOpen">
+      <button
+        mat-icon-button
+        (click)="toggleProfileMenu()"
+        class="p-2 hover:bg-gray-100 rounded-md transition-colors flex items-center space-x-1"
+        [attr.aria-label]="getTranslation('profile')"
+        aria-haspopup="true"
+        [attr.aria-expanded]="isProfileMenuOpen">
         <mat-icon class="text-gray-600 text-base">person</mat-icon>
         <mat-icon class="text-gray-600 text-base" [ngClass]="{'rotate-180': isProfileMenuOpen}">arrow_drop_down</mat-icon>
       </button>
+
+      <!-- Dropdown Menu -->
       <div *ngIf="isProfileMenuOpen" class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20 overflow-hidden">
-        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" (click)="toggleProfileMenu()">
-          {{ getTranslation('profile') }}
-        </a>
-        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" (click)="toggleProfileMenu()">
+        <!-- Divider -->
+        <div class="border-t border-gray-100"></div>
+
+        <!-- Logout Button -->
+        <button
+          type="button"
+          (click)="onLogout()"
+          class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors text-left">
+          <mat-icon class="text-gray-500 mr-3 text-lg">logout</mat-icon>
           {{ getTranslation('logout') }}
-        </a>
+        </button>
       </div>
     </div>
   </div>

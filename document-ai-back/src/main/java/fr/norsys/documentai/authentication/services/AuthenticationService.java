@@ -13,6 +13,7 @@ import org.springframework.context.MessageSource;
 
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +32,13 @@ public class AuthenticationService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("user.not.found.error", null, Locale.getDefault())));
 
-        String accessToken = jwtService.generateToken(user);
+
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("userId", user.getId());
+        extraClaims.put("role", user.getRole().name());
+        extraClaims.put("firstName", user.getFirstName());
+        extraClaims.put("lastName", user.getLastName());
+        String accessToken = jwtService.generateToken(extraClaims, user.getEmail());
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)

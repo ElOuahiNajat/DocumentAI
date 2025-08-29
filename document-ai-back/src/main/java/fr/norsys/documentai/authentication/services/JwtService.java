@@ -38,6 +38,15 @@ public class JwtService {
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+    public String generateToken(Map<String, Object> extraClaims, String subject) {
+        return Jwts.builder()
+                .setClaims(extraClaims)   // custom claims
+                .setSubject(subject)      // user email
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);

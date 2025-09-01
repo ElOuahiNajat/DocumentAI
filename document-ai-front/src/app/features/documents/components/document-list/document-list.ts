@@ -120,8 +120,8 @@ export class DocumentListComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response: PaginatedListResponse<DocumentResponse>) => {
           this.filteredDocuments = response.content
-          this.totalPages = response.totalPages
-          this.totalDocuments = response.totalElements
+          this.totalPages = response.page.totalPages
+          this.totalDocuments = response.page.totalElements
           this.loading = false
         },
         error: (error: any) => {

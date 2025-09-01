@@ -2,9 +2,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { UserResponse } from '../models/user-response';
-import { PagedResponse } from '../models/paged-response';
 import type { CreateUserRequest } from '../models/CreateUserRequest';
-
+import {PaginatedListResponse} from '../../../shared/components/PaginatedListResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +13,8 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  getUsers(page: number, size: number): Observable<PagedResponse<UserResponse>> {
-    return this.http.get<PagedResponse<UserResponse>>(`${this.apiUrl}?page=${page}&size=${size}`);
+  getUsers(page: number, size: number): Observable<PaginatedListResponse<UserResponse>> {
+    return this.http.get<PaginatedListResponse<UserResponse>>(`${this.apiUrl}?page=${page}&size=${size}`);
   }
 
    createUser(request: CreateUserRequest): Observable<void> {

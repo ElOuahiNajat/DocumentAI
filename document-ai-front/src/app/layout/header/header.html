@@ -5,16 +5,21 @@
     <div class="flex items-center space-x-2">
       <img src="assets/norsys_afrique.jpg" alt="Norsys Afrique Logo" class="h-20" />
     </div>
+
     <!-- Navigation Links -->
     <nav class="flex space-x-6">
+      <!-- Dashboard visible uniquement pour les admins -->
       <a
+        *ngIf="isAuthenticated() && isAdmin()"
         mat-button
-        routerLink="/"
+        routerLink="/dashboard"
         routerLinkActive="active-link"
         [routerLinkActiveOptions]="{exact: true}"
         class="text-gray-600 hover:text-gray-900 pb-2 transition-colors text-sm relative">
-        {{ getTranslation('home') }}
+        {{ getTranslation('dashboard') }}
       </a>
+
+      <!-- Documents visible pour tous les utilisateurs -->
       <a
         mat-button
         routerLink="/documents"
@@ -22,7 +27,8 @@
         class="text-gray-600 hover:text-gray-900 pb-2 transition-colors text-sm relative">
         {{ getTranslation('documents') }}
       </a>
-      <!-- ✅ Enhanced Users link visibility - only show for authenticated ADMIN users -->
+
+      <!-- Users visible uniquement pour les admins -->
       <a
         *ngIf="isAuthenticated() && isAdmin()"
         mat-button
@@ -51,9 +57,6 @@
 
       <!-- Dropdown Menu -->
       <div *ngIf="isProfileMenuOpen" class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20 overflow-hidden">
-        <!-- Divider -->
-        <div class="border-t border-gray-100"></div>
-
         <!-- Logout Button -->
         <button
           type="button"

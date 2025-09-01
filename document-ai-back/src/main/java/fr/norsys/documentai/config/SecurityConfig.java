@@ -53,7 +53,7 @@ public class SecurityConfig {
                                 messageSource.getMessage(
                                         "user.not.found.error",
                                         null,
-                                        LocaleContextHolder.getLocale() 
+                                        LocaleContextHolder.getLocale()
                                 )
                         )
                 );
@@ -61,7 +61,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12); 
+        return new BCryptPasswordEncoder(12);
     }
 
     @Bean

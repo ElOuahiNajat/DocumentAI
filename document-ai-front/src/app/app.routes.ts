@@ -1,14 +1,11 @@
 import { Routes } from '@angular/router';
-import { DocumentPage } from './features/documents/pages/document-page/document-page';
-import { UsersList } from './features/users/pages/users-list/users-list';
 import { AdminGuard } from './features/auth/services/admin.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () =>
-      import('./features/auth/login/login').then((m) => m.LoginComponent),
-    title: 'Login - DocumentAi',
+    redirectTo: 'dashboard',
+    pathMatch: 'full',
   },
   {
     path: 'login',
@@ -17,26 +14,32 @@ export const routes: Routes = [
     title: 'Login - DocumentAi',
   },
   {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('./features/dashboard/pages/dashboard-page/dashboard-page').then(
+        (m) => m.DashboardPage
+      ),
+    canActivate: [AdminGuard], // <-- uniquement accessible par admin
+    title: 'Dashboard - DocumentAi',
+  },
+  {
     path: 'documents',
-    component: DocumentPage,
-    children: [
-      {
-        path: '',
-        loadChildren: () =>
-          import('./features/documents/documents.routes').then((m) => m.routes),
-      },
-    ],
+    loadComponent: () =>
+      import('./features/documents/pages/document-page/document-page').then(
+        (m) => m.DocumentPage
+      ),
   },
   {
     path: 'users',
-    component: UsersList,
+    loadComponent: () =>
+      import('./features/users/pages/users-list/users-list').then(
+        (m) => m.UsersList
+      ),
     canActivate: [AdminGuard],
-    children: [
-      {
-        path: '',
-        loadChildren: () =>
-          import('./features/users/users.routes').then((m) => m.routes),
-      },
-    ],
+  },
+  {
+    path: '**',
+    redirectTo: 'dashboard',
+    pathMatch: 'full',
   },
 ];

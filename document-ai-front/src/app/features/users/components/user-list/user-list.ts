@@ -5,13 +5,13 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatPaginator } from '@angular/material/paginator';
 import { UserService } from '../../services/user-service';
 import { UserResponse } from '../../models/user-response';
-import { PagedResponse } from '../../models/paged-response';
 import { MatDialog } from '@angular/material/dialog';
 import { AddUserDialog } from '../add-user-dialog/add-user-dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {EditUserDialog} from '../edit-user-dialog/edit-user-dialog';
+import {PaginatedListResponse} from '../../../../shared/components/PaginatedListResponse';
 
 @Component({
   selector: 'app-user-list',
@@ -36,9 +36,9 @@ export class UserList implements OnInit {
 
   getUsers(): void {
     this.userService.getUsers(this.currentPage, this.pageSize).subscribe({
-      next: (res: PagedResponse<UserResponse>) => {
+      next: (res: PaginatedListResponse<UserResponse>) => {
         this.users = res.content;
-        this.totalItems = res.totalElements;
+        this.totalItems = res.page.totalElements;
       },
       error: (err) => {
         console.error('Error loading users', err);

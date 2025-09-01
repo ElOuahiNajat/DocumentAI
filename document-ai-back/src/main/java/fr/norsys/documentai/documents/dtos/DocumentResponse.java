@@ -16,7 +16,8 @@ public record DocumentResponse(
         String fileType,
         Integer fileSize,
         List<FeedbackResponse> feedbacks,
-        Double averageRating 
+        Double averageRating, 
+        String ownerEmail
 ) {
     public DocumentResponse(Document doc, List<FeedbackResponse> feedbacks, Double averageRating) {
         this(
@@ -29,7 +30,8 @@ public record DocumentResponse(
                 doc.getFileType(),
                 doc.getFileSize(),
                 feedbacks,
-                averageRating
+                averageRating,
+                doc.getOwner() != null ? doc.getOwner().getEmail() : null
         );
     }
 }

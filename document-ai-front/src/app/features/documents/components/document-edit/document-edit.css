@@ -1,0 +1,82 @@
+:host {
+  font-family: 'Inter', sans-serif;
+}
+
+::ng-deep .mat-mdc-dialog-container {
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.25s ease-out;
+  padding: 0 !important;
+}
+
+h2[mat-dialog-title] {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1565c0;
+  margin: 0;
+  padding-bottom: 12px;
+}
+
+mat-dialog-content {
+  padding-top: 0 !important;
+}
+
+mat-form-field {
+  background: rgba(245, 247, 250, 0.6);
+  border-radius: 12px;
+  padding: 4px 10px;
+}
+
+mat-label {
+  font-weight: 500;
+  color: #374151;
+}
+
+textarea, input {
+  font-size: 15px;
+}
+
+mat-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+button[mat-button] {
+  color: #1565c0;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+button[mat-button]:hover {
+  background: rgba(21, 101, 192, 0.08);
+}
+
+button[mat-raised-button] {
+  background: linear-gradient(45deg, #1976d2, #42a5f5);
+  color: white;
+  font-weight: 600;
+  padding: 6px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(25, 118, 210, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button[mat-raised-button]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(25, 118, 210, 0.4);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

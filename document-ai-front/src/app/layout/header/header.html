@@ -28,6 +28,8 @@
         {{ getTranslation('documents') }}
       </a>
 
+
+
       <!-- Users visible uniquement pour les admins -->
       <a
         *ngIf="isAuthenticated() && isAdmin()"
@@ -36,6 +38,14 @@
         routerLinkActive="active-link"
         class="text-gray-600 hover:text-gray-900 pb-2 transition-colors text-sm relative">
         {{ getTranslation('users') }}
+      </a>
+
+      <a
+        mat-button
+        routerLink="/chatbot"
+        routerLinkActive="active-link"
+        class="text-gray-600 hover:text-gray-900 pb-2 transition-colors text-sm relative">
+        {{ getTranslation('Assistant AI') }}
       </a>
     </nav>
   </div>

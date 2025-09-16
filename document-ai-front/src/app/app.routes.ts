@@ -19,7 +19,7 @@ export const routes: Routes = [
       import('./features/dashboard/pages/dashboard-page/dashboard-page').then(
         (m) => m.DashboardPage
       ),
-    canActivate: [AdminGuard], // <-- uniquement accessible par admin
+    canActivate: [AdminGuard],
     title: 'Dashboard - DocumentAi',
   },
   {
@@ -36,6 +36,15 @@ export const routes: Routes = [
         (m) => m.UsersList
       ),
     canActivate: [AdminGuard],
+  },
+  // ✅ Nouvelle route pour le Chatbot
+  {
+    path: 'chatbot',
+    loadComponent: () =>
+      import('./features/chatbot/chat.component').then(
+        (m) => m.ChatComponent
+      ),
+    title: 'Chatbot - DocumentAi',
   },
   {
     path: '**',

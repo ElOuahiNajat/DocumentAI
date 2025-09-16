@@ -1,98 +1,82 @@
-<div class="login-container min-h-screen bg-gray-100 flex items-center justify-center p-4">
-  <mat-card class="login-card w-full max-w-md shadow-xl">
-    <mat-card-header class="text-center pb-8 pt-8">
-      <div class="flex flex-col items-center space-y-6">
-        <div class="logo-container w-20 h-20 rounded-full overflow-hidden flex items-center justify-center bg-white shadow-md">
-          <img src="assets/norsys_afrique.jpg" alt="Norsys Afrique Logo" class="w-full" />
+<div class="login-container">
+  <!-- Image de fond floue -->
+  <div class="background-image"></div>
 
-        </div>
+  <div class="login-card">
+    <div class="login-card-header">
+      <div class="logo-container">
+        <img src="assets/norsys_afrique.jpg" alt="Norsys Afrique Logo" />
       </div>
-    </mat-card-header>
+      <h1>Connexion</h1>
+      <p>Accédez à votre espace sécurisé</p>
+    </div>
 
-    <mat-card-content class="px-8 pb-8">
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+    <div class="login-card-content">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <!-- Message d'erreur global -->
+        <div class="global-error" *ngIf="errorMessage">
+          <mat-icon class="global-error-icon">error</mat-icon>
+          <span>{{ errorMessage }}</span>
+        </div>
 
         <!-- Email Field -->
-        <div class="space-y-4">
-          <mat-form-field appearance="outline" class="w-full custom-form-field">
-            <mat-icon matPrefix class="prefix-icon">email</mat-icon>
+        <div class="form-group">
+          <div class="input-with-icon">
+            <mat-icon class="input-icon">email</mat-icon>
             <input
               matInput
               type="email"
-              placeholder="Enter your email"
               formControlName="email"
-              class="custom-input"
+              placeholder="Adresse email"
+              class="form-input"
             />
-            @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-              <mat-error class="custom-error">
-                <mat-icon class="error-icon">error</mat-icon>
-                {{ getEmailErrorMessage() }}
-              </mat-error>
-            }
-          </mat-form-field>
+          </div>
+          <div class="error-message" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+            <mat-icon class="error-icon">error</mat-icon>
+            {{ getEmailErrorMessage() }}
+          </div>
         </div>
 
         <!-- Password Field -->
-        <div class="space-y-2">
-          <mat-form-field appearance="outline" class="w-full custom-form-field">
-            <mat-icon matPrefix class="prefix-icon">lock</mat-icon>
+        <div class="form-group">
+          <div class="input-with-icon">
+            <mat-icon class="input-icon">lock</mat-icon>
             <input
               matInput
               [type]="hidePassword ? 'password' : 'text'"
-              placeholder="Enter your password"
               formControlName="password"
-              class="custom-input"
+              placeholder="Mot de passe"
+              class="form-input"
             />
             <button
-              mat-icon-button
-              matSuffix
               type="button"
+              mat-icon-button
               (click)="togglePasswordVisibility()"
-              class="suffix-button"
+              class="password-toggle"
             >
-              <mat-icon class="suffix-icon">
-                {{ hidePassword ? 'visibility_off' : 'visibility' }}
-              </mat-icon>
+              <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
             </button>
-            @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-              <mat-error class="custom-error">
-                <mat-icon class="error-icon">error</mat-icon>
-                {{ getPasswordErrorMessage() }}
-              </mat-error>
-            }
-          </mat-form-field>
-        </div>
-
-        <!-- Error Message -->
-        @if (errorMessage) {
-          <div class="error-message bg-red-50 border-l-4 border-red-400 text-red-700 px-4 py-3 rounded-r-md text-sm">
-            <div class="flex items-center">
-              <mat-icon class="text-red-500 mr-2">error</mat-icon>
-              {{ errorMessage }}
-            </div>
           </div>
-        }
+          <div class="error-message" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+            <mat-icon class="error-icon">error</mat-icon>
+            {{ getPasswordErrorMessage() }}
+          </div>
+        </div>
 
         <!-- Submit Button -->
-        <div class="pt-4">
-          <button
-            mat-raised-button
-            type="submit"
-            class="w-full custom-submit-button"
-            [disabled]="isLoading"
-          >
-            @if (isLoading) {
-              <span class="flex items-center justify-center">
-                <mat-spinner [diameter]="16" class="mr-2"></mat-spinner>
-                Signing in...
-              </span>
-            } @else {
-              <span>SIGN IN</span>
-            }
-          </button>
-        </div>
-
+        <button
+          mat-raised-button
+          type="submit"
+          class="submit-button"
+          [disabled]="isLoading"
+        >
+          <span *ngIf="!isLoading">SE CONNECTER</span>
+          <span *ngIf="isLoading" class="loading-container">
+            <mat-spinner diameter="20" class="loading-spinner"></mat-spinner>
+            Connexion...
+          </span>
+        </button>
       </form>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
 </div>
